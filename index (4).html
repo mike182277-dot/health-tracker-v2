@@ -248,28 +248,77 @@
         .c-val { font-size: 13px; font-weight: 500; }
         .c-val a { color: var(--accent); text-decoration: none; }
 
-        /* Calendar */
-        .cal-nav { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 10px; }
-        .cal-nav button { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border); background: var(--card); font-size: 16px; cursor: pointer; color: var(--text); }
-        .cal-month { font-size: 16px; font-weight: 600; min-width: 160px; text-align: center; }
-        .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; text-align: center; }
-        .cal-dn { font-size: 11px; color: var(--muted); padding: 4px 0; font-weight: 600; }
-        .cal-d {
-            aspect-ratio: 1; border-radius: 10px; display: flex;
-            align-items: center; justify-content: center; font-size: 13px;
-            cursor: pointer; position: relative;
+        /* Progress Dashboard */
+        .ring-wrap { text-align: center; margin-bottom: 16px; position: relative; }
+        .ring-center {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+            text-align: center;
         }
-        .cal-d.today { font-weight: 700; border: 2px solid var(--accent); }
-        .cal-d.empty { opacity: 0.25; }
-        .cal-d.good::after, .cal-d.partial::after {
-            content: ''; position: absolute; bottom: 2px; width: 6px; height: 6px; border-radius: 50%;
+        .ring-day { font-size: 36px; font-weight: 800; color: var(--accent); line-height: 1; }
+        .ring-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
+        .ring-sub { font-size: 11px; color: var(--muted); }
+
+        .streak-card {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 16px; padding: 18px; text-align: center;
+            margin-bottom: 14px; color: #fff;
         }
-        .cal-d.good::after { background: var(--accent); }
-        .cal-d.partial::after { background: var(--gold); }
-        .cal-stats { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-top: 14px; }
-        .cal-s { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; text-align: center; }
-        .cal-s-v { font-size: 22px; font-weight: 700; color: var(--accent); }
-        .cal-s-l { font-size: 11px; color: var(--muted); margin-top: 2px; }
+        .streak-num { font-size: 42px; font-weight: 800; line-height: 1; }
+        .streak-txt { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+        .streak-sub { font-size: 11px; opacity: 0.6; margin-top: 2px; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 14px; }
+        .stat-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 14px; padding: 14px; text-align: center; box-shadow: var(--shadow);
+        }
+        .stat-val { font-size: 24px; font-weight: 800; color: var(--accent); }
+        .stat-lbl { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+        .achieve-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 16px; border-bottom: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+        .achieve-item:last-child { border-bottom: none; }
+        .achieve-icon {
+            width: 36px; height: 36px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; background: var(--bg); flex-shrink: 0;
+        }
+        .achieve-item.done .achieve-icon { background: var(--accent-bg); }
+        .achieve-info { flex: 1; }
+        .achieve-name { font-size: 14px; font-weight: 600; }
+        .achieve-item.done .achieve-name { text-decoration: line-through; opacity: 0.5; }
+        .achieve-desc { font-size: 11px; color: var(--muted); margin-top: 1px; }
+        .achieve-check {
+            width: 24px; height: 24px; border-radius: 50%;
+            border: 2px solid var(--border); display: flex;
+            align-items: center; justify-content: center; font-size: 14px; color: transparent;
+        }
+        .achieve-item.done .achieve-check { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+        .timeline-item {
+            display: flex; gap: 12px; padding: 14px 16px;
+            border-bottom: 1px solid var(--border); align-items: flex-start;
+        }
+        .timeline-item:last-child { border-bottom: none; }
+        .tl-dot {
+            width: 10px; height: 10px; border-radius: 50%; margin-top: 5px;
+            flex-shrink: 0;
+        }
+        .tl-dot.soon { background: var(--warn); }
+        .tl-dot.future { background: var(--border); }
+        .tl-dot.past { background: var(--accent); }
+        .tl-info { flex: 1; }
+        .tl-name { font-size: 14px; font-weight: 600; }
+        .tl-date { font-size: 12px; color: var(--muted); margin-top: 2px; }
+        .tl-cal-btn {
+            font-size: 11px; padding: 4px 10px; border-radius: 8px;
+            border: 1px solid var(--accent); background: var(--accent-bg);
+            color: var(--accent); cursor: pointer; margin-top: 6px;
+            display: inline-block; text-decoration: none;
+        }
 
         /* Bottom nav */
         .bnav {
@@ -430,15 +479,44 @@
     </div>
 </div>
 
-<!-- TAB: Календарь -->
-<div class="tab" id="t-cal">
-    <div class="cal-nav">
-        <button onclick="chgMonth(-1)">‹</button>
-        <span class="cal-month" id="calMo"></span>
-        <button onclick="chgMonth(1)">›</button>
+<!-- TAB: Прогресс -->
+<div class="tab" id="t-prog">
+    <!-- Course Ring -->
+    <div class="ring-wrap">
+        <svg width="180" height="180" viewBox="0 0 180 180" id="ringSvg">
+            <circle cx="90" cy="90" r="78" stroke="var(--border)" stroke-width="10" fill="none"/>
+            <circle cx="90" cy="90" r="78" stroke="var(--accent)" stroke-width="10" fill="none"
+                stroke-linecap="round" stroke-dasharray="490" stroke-dashoffset="490"
+                transform="rotate(-90 90 90)" id="ringCircle"/>
+        </svg>
+        <div class="ring-center">
+            <div class="ring-day" id="ringDay">0</div>
+            <div class="ring-label">из 60 дней</div>
+            <div class="ring-sub" id="ringSub"></div>
+        </div>
     </div>
-    <div class="cal-grid" id="calGrid"></div>
-    <div class="cal-stats" id="calStats"></div>
+
+    <!-- Streak -->
+    <div class="streak-card">
+        <div class="streak-num" id="streakNum">0</div>
+        <div class="streak-txt">дней подряд 🔥</div>
+        <div class="streak-sub" id="streakSub">Начни серию сегодня!</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid" id="statsGrid"></div>
+
+    <!-- Milestones -->
+    <div class="sec-title">🏆 Вехи курса</div>
+    <div class="proc-card">
+        <div id="milestones"></div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="sec-title">📋 Ближайшие действия</div>
+    <div class="proc-card">
+        <div id="timeline"></div>
+    </div>
 </div>
 
 <!-- TAB: Инфо -->
@@ -463,7 +541,7 @@
     <button class="on" onclick="go('today',this)"><span class="ni">💊</span>Сегодня</button>
     <button onclick="go('proc',this)"><span class="ni">💉</span>Процедуры</button>
     <button onclick="go('food',this)"><span class="ni">🥩</span>Питание</button>
-    <button onclick="go('cal',this)"><span class="ni">📅</span>Календарь</button>
+    <button onclick="go('prog',this)"><span class="ni">📊</span>Прогресс</button>
     <button onclick="go('info',this)"><span class="ni">ℹ️</span>Инфо</button>
 </div>
 
@@ -504,7 +582,7 @@ const START='2026-02-24', DAYS=60, OMEGA=4, WATER=10;
 const MO=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
 const MON=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 
-let cur=new Date(), calM=new Date(), D={};
+let cur=new Date(), D={};
 
 function dk(d){if(typeof d==='string')return d;return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function today(){return dk(new Date());}
@@ -525,7 +603,7 @@ function go(t,btn){
     document.getElementById('t-'+t).classList.add('on');
     document.querySelectorAll('.bnav button').forEach(b=>b.classList.remove('on'));
     btn.classList.add('on');
-    if(t==='cal')renderCal();
+    if(t==='prog')renderProgress();
 }
 
 // Toggle block
@@ -632,45 +710,130 @@ function renderStatic(){
     document.getElementById('contacts').innerHTML=CONT.map(c=>`<div class="contact-row"><span class="c-label">${c.l}</span><span class="c-val"><a href="tel:${c.t}">${c.v}</a></span></div>`).join('');
 }
 
-// Calendar
-function chgMonth(dir){calM.setMonth(calM.getMonth()+dir);renderCal();}
-function renderCal(){
-    const y=calM.getFullYear(),m=calM.getMonth();
-    document.getElementById('calMo').textContent=MON[m]+' '+y;
-    const f=new Date(y,m,1),l=new Date(y,m+1,0);
-    let s=f.getDay();if(s===0)s=7;s--;
-    const td=today();
-    let h=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(d=>`<div class="cal-dn">${d}</div>`).join('');
-    for(let i=0;i<s;i++)h+='<div class="cal-d empty"></div>';
-    let dT=0,dG=0,tW=0,streak=0,mx=0;
-    for(let d=1;d<=l.getDate();d++){
-        const k=dk(new Date(y,m,d));
+// Progress Dashboard
+function renderProgress(){
+    const now=new Date();now.setHours(0,0,0,0);
+    const start=new Date(START);
+    const dayNum=Math.max(0,Math.floor((now-start)/864e5)+1);
+    const daysCapped=Math.min(dayNum,DAYS);
+    const remain=Math.max(0,DAYS-dayNum);
+    const pct=Math.min(100,Math.round(daysCapped/DAYS*100));
+
+    // Ring
+    document.getElementById('ringDay').textContent=daysCapped;
+    const circ=490;
+    document.getElementById('ringCircle').style.strokeDashoffset=circ-circ*(pct/100);
+    document.getElementById('ringSub').textContent=remain>0?'Осталось '+remain+' дней':'Курс завершён! 🎉';
+
+    // Streak
+    let streak=0;
+    const d2=new Date();d2.setHours(0,0,0,0);
+    for(let i=0;i<90;i++){
+        const k=dk(d2);
         const dd=D.days[k];
-        let c='';if(k===td)c+=' today';
         if(dd){
             const bd=BLOCKS.filter(b=>dd.blocks&&dd.blocks[b.id]).length;
             const sc=bd+(dd.omega||0);
-            const pct=sc/(BLOCKS.length+OMEGA);
-            dT++;tW+=dd.water||0;
-            if(pct>=0.7){c+=' good';dG++;streak++;mx=Math.max(mx,streak);}
-            else if(pct>0){c+=' partial';streak=0;}
-            else streak=0;
-        } else streak=0;
-        h+=`<div class="cal-d${c}" onclick="jumpTo(${y},${m},${d})">${d}</div>`;
+            if(sc/(BLOCKS.length+OMEGA)>=0.7){streak++;} else if(i>0)break;
+        } else if(i>0)break;
+        d2.setDate(d2.getDate()-1);
     }
-    document.getElementById('calGrid').innerHTML=h;
-    document.getElementById('calStats').innerHTML=`
-        <div class="cal-s"><div class="cal-s-v">${dG}</div><div class="cal-s-l">Дней выполнено</div></div>
-        <div class="cal-s"><div class="cal-s-v">${dT?Math.round(dG/dT*100):0}%</div><div class="cal-s-l">Успешность</div></div>
-        <div class="cal-s"><div class="cal-s-v">${mx}</div><div class="cal-s-l">Макс. подряд</div></div>
-        <div class="cal-s"><div class="cal-s-v">${tW?((tW*0.25).toFixed(1)):0}л</div><div class="cal-s-l">Выпито воды</div></div>`;
-}
-function jumpTo(y,m,d){
-    cur=new Date(y,m,d);
-    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
-    document.getElementById('t-today').classList.add('on');
-    document.querySelectorAll('.bnav button').forEach((b,i)=>b.classList.toggle('on',i===0));
-    render();
+    document.getElementById('streakNum').textContent=streak;
+    const msgs=['Начни серию сегодня!','Хорошее начало!','Так держать! 💪','Отлично идёшь!','Крутая серия!','Машина! 🚀','Невероятно! 🔥'];
+    document.getElementById('streakSub').textContent=msgs[Math.min(streak,msgs.length-1)];
+
+    // Stats
+    let totalDays=0,goodDays=0,totalWater=0;
+    for(const k in D.days){
+        const dd=D.days[k];if(!dd)continue;
+        const bd=BLOCKS.filter(b=>dd.blocks&&dd.blocks[b.id]).length;
+        const sc=bd+(dd.omega||0);
+        totalDays++;totalWater+=dd.water||0;
+        if(sc/(BLOCKS.length+OMEGA)>=0.7)goodDays++;
+    }
+    document.getElementById('statsGrid').innerHTML=`
+        <div class="stat-card"><div class="stat-val">${goodDays}</div><div class="stat-lbl">Дней выполнено</div></div>
+        <div class="stat-card"><div class="stat-val">${totalDays?Math.round(goodDays/totalDays*100):0}%</div><div class="stat-lbl">Успешность</div></div>
+        <div class="stat-card"><div class="stat-val">${D.drips}/5</div><div class="stat-lbl">Капельниц</div></div>
+        <div class="stat-card"><div class="stat-val">${D.neuro}/14</div><div class="stat-lbl">Уколов</div></div>
+    `;
+
+    // Milestones
+    const ms=[
+        {id:'m_labs',icon:'🧪',name:'Анализы до Небидо сданы',desc:'ЛГ, ФСГ, ГСПГ, тестостерон'},
+        {id:'m_nebido',icon:'💉',name:'Укол Небидо сделан',desc:'Тестостерон 1000 мг'},
+        {id:'m_drip1',icon:'🩸',name:'Первая капельница',desc:'Тиоктацид + Венофер'},
+        {id:'m_drip5',icon:'🩸',name:'Все 5 капельниц пройдены',desc:'Сдать СРБ, АСТ, АЛТ'},
+        {id:'m_neuro10',icon:'💊',name:'10 уколов Нейромультивита',desc:'Переход на 1 р/нед'},
+        {id:'m_neuro14',icon:'💊',name:'Все 14 уколов пройдены',desc:'Курс завершён'},
+        {id:'m_labs_after',icon:'🧪',name:'Контроль тестостерона сдан',desc:'Через 3 нед. после Небидо'},
+        {id:'m_carbs',icon:'🥩',name:'Безуглеводный переход (1.5 мес.)',desc:'Перепрошивка метаболизма'},
+        {id:'m_visit',icon:'👨‍⚕️',name:'Контрольный визит к врачу',desc:'Через ~2 месяца после начала'},
+    ];
+    // Auto-check based on data
+    const autoCheck={
+        m_labs:LABS_B.every((_,i)=>D.labs['b'+i]),
+        m_nebido:D.nebido,
+        m_drip1:D.drips>=1,
+        m_drip5:D.drips>=5,
+        m_neuro10:D.neuro>=10,
+        m_neuro14:D.neuro>=14,
+        m_labs_after:LABS_A.every((_,i)=>D.labs['a'+i]),
+        m_carbs:dayNum>=45,
+        m_visit:dayNum>=60,
+    };
+    document.getElementById('milestones').innerHTML=ms.map(m=>{
+        const done=autoCheck[m.id]||(D.miles&&D.miles[m.id]);
+        return `<div class="achieve-item ${done?'done':''}">
+            <div class="achieve-icon">${m.icon}</div>
+            <div class="achieve-info">
+                <div class="achieve-name">${m.name}</div>
+                <div class="achieve-desc">${m.desc}</div>
+            </div>
+            <div class="achieve-check">${done?'✓':''}</div>
+        </div>`;
+    }).join('');
+
+    // Timeline
+    const startD=new Date(START);
+    const events=[
+        {name:'Сдать анализы: ЛГ, ФСГ, ГСПГ, тестостерон', offset:0, dur:'до укола Небидо'},
+        {name:'Начать безуглеводный переход', offset:0, dur:'на ~1.5 месяца'},
+        {name:'Укол Небидо', offset:7, dur:'после получения анализов'},
+        {name:'Капельница #1 (Тиоктацид+Венофер)', offset:7, dur:''},
+        {name:'Капельница #2', offset:14, dur:'через 7–10 дней'},
+        {name:'Капельница #3', offset:21, dur:''},
+        {name:'Капельница #4', offset:28, dur:''},
+        {name:'Капельница #5 + сдать СРБ, АСТ, АЛТ', offset:35, dur:''},
+        {name:'Контроль тестостерона (анализ)', offset:28, dur:'через 3 нед. после Небидо'},
+        {name:'Консультация Фомина А.М.', offset:42, dur:'обсудить результаты'},
+        {name:'Оценка безуглеводного перехода', offset:45, dur:'должно уйти чувство голода'},
+        {name:'Контрольный визит (Бушуева + Фомин)', offset:60, dur:'анализы + план дальше'},
+    ];
+
+    const todayD=new Date();todayD.setHours(0,0,0,0);
+    document.getElementById('timeline').innerHTML=events.map(e=>{
+        const evDate=new Date(startD);evDate.setDate(evDate.getDate()+e.offset);
+        const diff=Math.round((evDate-todayD)/864e5);
+        let dot='future',dateStr='';
+        if(diff<0){dot='past';dateStr='Прошло';}
+        else if(diff===0){dot='soon';dateStr='Сегодня!';}
+        else if(diff<=7){dot='soon';dateStr='Через '+diff+' дн.';}
+        else{dateStr=evDate.getDate()+' '+MO[evDate.getMonth()];}
+
+        // Generate Google Calendar link
+        const y=evDate.getFullYear(),mo=String(evDate.getMonth()+1).padStart(2,'0'),dy=String(evDate.getDate()).padStart(2,'0');
+        const calUrl='https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent('🏥 '+e.name)+'&dates='+y+mo+dy+'/'+y+mo+dy+'&details='+encodeURIComponent(e.dur||'Протокол здоровья');
+
+        return `<div class="timeline-item">
+            <div class="tl-dot ${dot}"></div>
+            <div class="tl-info">
+                <div class="tl-name">${e.name}</div>
+                <div class="tl-date">${dateStr}${e.dur?' · '+e.dur:''}</div>
+                ${diff>=0?`<a href="${calUrl}" target="_blank" class="tl-cal-btn">📅 В календарь</a>`:''}
+            </div>
+        </div>`;
+    }).join('');
 }
 
 // INIT
