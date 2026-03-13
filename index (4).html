@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Трекер">
+    <meta name="theme-color" content="#00b894">
+    <link rel="apple-touch-icon" href="icon-180.png">
+    <title>💊 Трекер здоровья</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #f5f7fa;
+            --card: #ffffff;
+            --card-done: #f0faf5;
+            --text: #1a1a2e;
+            --text2: #555;
+            --muted: #999;
+            --accent: #00b894;
+            --accent2: #00cec9;
+            --accent-bg: rgba(0,184,148,0.1);
+            --border: #e8ecf0;
+            --shadow: 0 2px 8px rgba(0,0,0,0.06);
+            --water: #0984e3;
+            --water-bg: rgba(9,132,227,0.08);
+            --warn: #e17055;
+            --warn-bg: rgba(225,112,85,0.08);
+            --red: #d63031;
+            --red-bg: rgba(214,48,49,0.06);
+            --gold: #f39c12;
+        }
+        [data-theme="dark"] {
+            --bg: #1a1a2e;
+            --card: rgba(255,255,255,0.06);
+            --card-done: rgba(0,184,148,0.1);
+            --text: #fff;
+            --text2: rgba(255,255,255,0.75);
+            --muted: rgba(255,255,255,0.45);
+            --border: rgba(255,255,255,0.08);
+            --shadow: 0 2px 8px rgba(0,0,0,0.2);
+            --water-bg: rgba(116,185,255,0.12);
+            --warn-bg: rgba(250,177,160,0.12);
+            --red-bg: rgba(255,118,117,0.1);
+            --accent-bg: rgba(0,184,148,0.15);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg); color: var(--text);
+            min-height: 100vh; padding: 16px; padding-bottom: 90px;
+            transition: background 0.3s, color 0.3s;
+            max-width: 480px; margin: 0 auto;
+        }
+
+        /* Header */
+        .header { text-align: center; margin-bottom: 16px; position: relative; }
+        .header h1 { font-size: 22px; margin-bottom: 6px; }
+        .theme-btn {
+            position: absolute; top: 0; right: 0;
+            width: 42px; height: 42px; border-radius: 50%;
+            border: 1px solid var(--border); background: var(--card);
+            font-size: 20px; cursor: pointer; display: flex;
+            align-items: center; justify-content: center;
+        }
+        .date-nav { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 4px; }
+        .date-nav button {
+            width: 38px; height: 38px; border-radius: 50%;
+            border: 1px solid var(--border); background: var(--card);
+            font-size: 18px; cursor: pointer; color: var(--text);
+        }
+        .cur-date { font-size: 18px; font-weight: 600; min-width: 140px; }
+        .course-info { font-size: 12px; color: var(--gold); }
+
+        /* Progress */
+        .progress-wrap { margin: 12px 0 16px; }
+        .progress-bar { background: var(--border); border-radius: 10px; height: 20px; overflow: hidden; }
+        .progress-fill {
+            height: 100%; border-radius: 10px;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            transition: width 0.4s; display: flex; align-items: center;
+            justify-content: center; font-size: 11px; font-weight: 700; color: #fff; min-width: 36px;
+        }
+
+        /* Card */
+        .card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; margin-bottom: 14px;
+            box-shadow: var(--shadow); overflow: hidden; transition: all 0.3s;
+        }
+        .card.done { background: var(--card-done); border-color: rgba(0,184,148,0.25); }
+
+        .card-header {
+            display: flex; align-items: center; gap: 10px;
+            padding: 14px 16px; cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .card-check {
+            width: 28px; height: 28px; border-radius: 10px;
+            border: 2.5px solid var(--border); display: flex;
+            align-items: center; justify-content: center; flex-shrink: 0;
+            transition: all 0.2s; font-size: 16px; color: transparent;
+        }
+        .card.done .card-check { background: var(--accent); border-color: var(--accent); color: #fff; }
+        .card-icon { font-size: 22px; }
+        .card-title { font-size: 16px; font-weight: 600; flex: 1; }
+
+        .card-body { padding: 0 16px 14px; }
+        .pill-line {
+            display: flex; align-items: baseline; gap: 6px;
+            padding: 5px 0; font-size: 14px; color: var(--text2); line-height: 1.4;
+        }
+        .pill-emoji { font-size: 14px; flex-shrink: 0; }
+        .pill-tag {
+            margin-left: auto; font-size: 10px; padding: 2px 8px;
+            border-radius: 8px; background: var(--accent-bg); color: var(--accent);
+            white-space: nowrap; flex-shrink: 0;
+        }
+        .pill-tag.new { background: var(--warn-bg); color: var(--warn); }
+        .card.done .pill-line { opacity: 0.5; text-decoration: line-through; }
+
+        /* Omega */
+        .omega-wrap { padding: 10px 16px 14px; }
+        .omega-label { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+        .omega-btns { display: flex; gap: 10px; }
+        .omega-btn {
+            width: 52px; height: 52px; border-radius: 14px;
+            border: 2px solid var(--border); background: var(--card);
+            font-size: 18px; font-weight: 700; color: var(--text);
+            cursor: pointer; transition: all 0.2s;
+        }
+        .omega-btn.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+        /* Water */
+        .water-target { text-align: center; font-size: 14px; color: var(--muted); margin-bottom: 4px; }
+        .water-count { text-align: center; margin-bottom: 10px; }
+        .water-count strong { font-size: 28px; color: var(--water); }
+        .water-count span { font-size: 16px; color: var(--muted); }
+        .water-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; }
+        .water-btn {
+            aspect-ratio: 1; border-radius: 14px; border: 2px solid var(--border);
+            background: var(--card); font-size: 24px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+            opacity: 0.35;
+        }
+        .water-btn.on { border-color: var(--water); background: var(--water-bg); opacity: 1; }
+        .water-note {
+            margin-top: 12px; padding: 10px 14px; border-radius: 12px;
+            background: var(--water-bg); font-size: 13px; color: var(--text2);
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        /* Section title */
+        .sec-title {
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.06em; color: var(--muted);
+            padding: 16px 0 8px; display: flex; align-items: center; gap: 8px;
+        }
+        .sec-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+        /* Procedure items */
+        .proc-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; margin-bottom: 14px; box-shadow: var(--shadow); overflow: hidden;
+        }
+        .proc-header { padding: 14px 16px 10px; }
+        .proc-top { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+        .proc-icon { font-size: 22px; }
+        .proc-name { font-size: 16px; font-weight: 600; flex: 1; }
+        .proc-counter { font-size: 15px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+        .proc-desc { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 8px; }
+        .proc-bar { background: var(--border); border-radius: 6px; height: 8px; overflow: hidden; }
+        .proc-bar-fill { height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.4s; }
+        .proc-schedule { font-size: 12px; color: var(--muted); text-align: center; margin-top: 6px; }
+        .proc-btns {
+            display: flex; align-items: center; justify-content: center;
+            gap: 16px; padding: 10px 16px 14px;
+        }
+        .proc-btn {
+            width: 44px; height: 44px; border-radius: 14px;
+            border: 1px solid var(--border); background: var(--card);
+            font-size: 22px; cursor: pointer; color: var(--text);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .proc-btn:active { transform: scale(0.9); }
+
+        /* Lab check rows */
+        .lab-row {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 16px; cursor: pointer; border-bottom: 1px solid var(--border);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .lab-row:last-child { border-bottom: none; }
+        .lab-row.done { opacity: 0.45; }
+        .lab-row.done .lab-text { text-decoration: line-through; }
+        .lab-check {
+            width: 24px; height: 24px; border-radius: 8px;
+            border: 2px solid var(--border); display: flex;
+            align-items: center; justify-content: center; flex-shrink: 0;
+            font-size: 13px; color: transparent; transition: all 0.2s;
+        }
+        .lab-row.done .lab-check { background: var(--accent); border-color: var(--accent); color: #fff; }
+        .lab-text { font-size: 14px; color: var(--text2); }
+        .lab-note {
+            padding: 10px 16px 14px; font-size: 12px; color: var(--warn);
+            font-style: italic;
+        }
+
+        /* Food */
+        .food-banner {
+            background: var(--accent-bg); border: 1.5px solid var(--accent);
+            border-radius: 16px; padding: 18px; text-align: center; margin-bottom: 14px;
+        }
+        .food-banner h3 { font-size: 18px; color: var(--accent); margin-bottom: 4px; }
+        .food-banner p { font-size: 13px; color: var(--muted); }
+        .food-line {
+            display: flex; align-items: flex-start; gap: 8px;
+            padding: 7px 0; font-size: 14px; color: var(--text2); line-height: 1.5;
+            border-bottom: 1px solid var(--border);
+        }
+        .food-line:last-child { border-bottom: none; }
+        .f-dot { flex-shrink: 0; margin-top: 6px; font-size: 7px; }
+        .f-yes { color: var(--accent); }
+        .f-no { color: var(--red); }
+
+        /* Targets */
+        .target-row {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 0; border-bottom: 1px solid var(--border);
+        }
+        .target-row:last-child { border-bottom: none; }
+        .t-icon { font-size: 20px; width: 30px; text-align: center; }
+        .t-label { flex: 1; font-size: 14px; color: var(--text2); }
+        .t-val { font-size: 14px; font-weight: 700; color: var(--accent); }
+
+        /* Genetics */
+        .gene-row { padding: 8px 0; border-bottom: 1px solid var(--border); }
+        .gene-row:last-child { border-bottom: none; }
+        .gene-name { font-size: 12px; font-weight: 700; color: var(--muted); font-family: 'SF Mono','Menlo',monospace; margin-bottom: 2px; }
+        .gene-desc { font-size: 13px; color: var(--text2); line-height: 1.4; }
+
+        /* Contacts */
+        .contact-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+        .contact-row:last-child { border-bottom: none; }
+        .c-label { font-size: 13px; color: var(--muted); }
+        .c-val { font-size: 13px; font-weight: 500; }
+        .c-val a { color: var(--accent); text-decoration: none; }
+
+        /* Calendar */
+        .cal-nav { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 10px; }
+        .cal-nav button { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border); background: var(--card); font-size: 16px; cursor: pointer; color: var(--text); }
+        .cal-month { font-size: 16px; font-weight: 600; min-width: 160px; text-align: center; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; text-align: center; }
+        .cal-dn { font-size: 11px; color: var(--muted); padding: 4px 0; font-weight: 600; }
+        .cal-d {
+            aspect-ratio: 1; border-radius: 10px; display: flex;
+            align-items: center; justify-content: center; font-size: 13px;
+            cursor: pointer; position: relative;
+        }
+        .cal-d.today { font-weight: 700; border: 2px solid var(--accent); }
+        .cal-d.empty { opacity: 0.25; }
+        .cal-d.good::after, .cal-d.partial::after {
+            content: ''; position: absolute; bottom: 2px; width: 6px; height: 6px; border-radius: 50%;
+        }
+        .cal-d.good::after { background: var(--accent); }
+        .cal-d.partial::after { background: var(--gold); }
+        .cal-stats { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-top: 14px; }
+        .cal-s { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; text-align: center; }
+        .cal-s-v { font-size: 22px; font-weight: 700; color: var(--accent); }
+        .cal-s-l { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+        /* Bottom nav */
+        .bnav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--card); border-top: 1px solid var(--border);
+            display: flex; padding: 6px 0; padding-bottom: max(6px, env(safe-area-inset-bottom));
+            z-index: 100;
+        }
+        .bnav button {
+            flex: 1; display: flex; flex-direction: column; align-items: center;
+            gap: 1px; border: none; background: none; color: var(--muted);
+            font-size: 10px; cursor: pointer; padding: 4px 0;
+        }
+        .bnav button .ni { font-size: 20px; }
+        .bnav button.on { color: var(--accent); }
+
+        .tab { display: none; }
+        .tab.on { display: block; }
+
+        .footer { text-align: center; padding: 20px 0 8px; font-size: 11px; color: var(--muted); }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+    <h1>💊 Трекер здоровья</h1>
+    <div class="date-nav">
+        <button onclick="chgDate(-1)">‹</button>
+        <span class="cur-date" id="curDate"></span>
+        <button onclick="chgDate(1)">›</button>
+    </div>
+    <div class="course-info" id="courseInfo"></div>
+</div>
+
+<!-- TAB: Сегодня -->
+<div class="tab on" id="t-today">
+    <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" id="progBar">0%</div></div>
+    </div>
+    <div id="pillBlocks"></div>
+
+    <!-- Omega -->
+    <div class="card" id="omegaCard">
+        <div class="card-header" style="cursor:default;">
+            <span class="card-icon">🟠</span>
+            <span class="card-title">Омега-3 — приёмы за день</span>
+        </div>
+        <div class="omega-wrap">
+            <div class="omega-label">Цель: 4000 мг/сут (3–4 приёма)</div>
+            <div class="omega-btns" id="omegaBtns"></div>
+        </div>
+    </div>
+
+    <!-- Water -->
+    <div class="card">
+        <div class="card-header" style="cursor:default;">
+            <span class="card-icon">💧</span>
+            <span class="card-title">Вода</span>
+        </div>
+        <div class="card-body">
+            <div class="water-target">Цель: 2.5 — 3 литра в день</div>
+            <div class="water-count"><strong id="wCnt">0</strong> <span>/ 10</span></div>
+            <div class="water-grid" id="wGrid"></div>
+            <div class="water-note">
+                <span>⏰</span> Пить за 10–15 мин до еды, через 1.5 ч после еды
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TAB: Процедуры -->
+<div class="tab" id="t-proc">
+    <!-- Анализы до Небидо -->
+    <div class="sec-title">🧪 Анализы ДО укола Небидо</div>
+    <div class="proc-card">
+        <div id="labsBefore"></div>
+        <div class="lab-note">Сдавать в одной лаборатории!</div>
+    </div>
+
+    <!-- Небидо -->
+    <div class="sec-title">💉 Укол тестостерона</div>
+    <div class="proc-card">
+        <div id="nebidoRow"></div>
+        <div class="proc-header">
+            <div class="proc-desc">Небидо 1000 мг (4 мл) в/м · Рецепт 45РФ №979190</div>
+        </div>
+    </div>
+
+    <!-- Анализы после Небидо -->
+    <div class="sec-title">🧪 Анализы ПОСЛЕ укола (через 3 нед.)</div>
+    <div class="proc-card">
+        <div id="labsAfter"></div>
+        <div class="lab-note">Результат → Фомину А.М. +7 985 781-23-03</div>
+    </div>
+
+    <!-- Капельницы -->
+    <div class="sec-title">🩸 Капельницы</div>
+    <div class="proc-card">
+        <div class="proc-header">
+            <div class="proc-top">
+                <span class="proc-icon">💉</span>
+                <span class="proc-name">Тиоктацид 300 + Венофер 100</span>
+                <span class="proc-counter" id="dripCnt">0/5</span>
+            </div>
+            <div class="proc-desc">Антиоксидант + железо в одной капельнице. Снижение воспаления и восполнение дефицита железа параллельно.</div>
+            <div class="proc-bar"><div class="proc-bar-fill" id="dripBar"></div></div>
+            <div class="proc-schedule">Интервал 7–10 дней</div>
+        </div>
+        <div class="proc-btns">
+            <button class="proc-btn" onclick="chgProc('drips',-1)">−</button>
+            <span style="font-size:14px;color:var(--muted);">капельниц</span>
+            <button class="proc-btn" onclick="chgProc('drips',1)">+</button>
+        </div>
+        <div class="lab-note">⚠️ После 5-й капельницы → сдать СРБ, АСТ, АЛТ</div>
+    </div>
+
+    <!-- Нейромультивит -->
+    <div class="sec-title">💊 Уколы</div>
+    <div class="proc-card">
+        <div class="proc-header">
+            <div class="proc-top">
+                <span class="proc-icon">💊</span>
+                <span class="proc-name">Нейромультивит 2 мл в/м</span>
+                <span class="proc-counter" id="neuroCnt">0/14</span>
+            </div>
+            <div class="proc-desc">Витамины B1, B6, B12 — нервная система, энергия, снижение гомоцистеина</div>
+            <div class="proc-bar"><div class="proc-bar-fill" id="neuroBar"></div></div>
+            <div class="proc-schedule">2 р/нед × 10, потом 1 р/нед × 4</div>
+        </div>
+        <div class="proc-btns">
+            <button class="proc-btn" onclick="chgProc('neuro',-1)">−</button>
+            <span style="font-size:14px;color:var(--muted);">уколов</span>
+            <button class="proc-btn" onclick="chgProc('neuro',1)">+</button>
+        </div>
+    </div>
+</div>
+
+<!-- TAB: Питание -->
+<div class="tab" id="t-food">
+    <div class="food-banner">
+        <h3>🥩 Безуглеводный переход</h3>
+        <p>~1.5 месяца · Белок 1.5 г/кг · Цель: талия < 94 см</p>
+    </div>
+    <div class="card">
+        <div class="card-header" style="cursor:default;"><span class="card-icon">✅</span><span class="card-title">Можно</span></div>
+        <div class="card-body" id="foodYes"></div>
+    </div>
+    <div class="card" style="border-color:var(--red-bg);">
+        <div class="card-header" style="cursor:default;"><span class="card-icon">🚫</span><span class="card-title">Нельзя</span></div>
+        <div class="card-body" id="foodNo"></div>
+    </div>
+    <div class="water-note" style="margin-top:4px;"><span>💧</span> Вода ≥ 2.5 л/сут · До еды за 10–15 мин · После через 1.5 ч</div>
+
+    <div class="sec-title">🎯 Цели</div>
+    <div class="card">
+        <div class="card-body" id="targets"></div>
+    </div>
+</div>
+
+<!-- TAB: Календарь -->
+<div class="tab" id="t-cal">
+    <div class="cal-nav">
+        <button onclick="chgMonth(-1)">‹</button>
+        <span class="cal-month" id="calMo"></span>
+        <button onclick="chgMonth(1)">›</button>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-stats" id="calStats"></div>
+</div>
+
+<!-- TAB: Инфо -->
+<div class="tab" id="t-info">
+    <div class="card">
+        <div class="card-header" style="cursor:default;"><span class="card-icon">🧬</span><span class="card-title">Генетика</span></div>
+        <div class="card-body" id="genetics"></div>
+    </div>
+    <div class="card">
+        <div class="card-header" style="cursor:default;"><span class="card-icon">📋</span><span class="card-title">Диагнозы</span></div>
+        <div class="card-body" id="diagnoses"></div>
+    </div>
+    <div class="card">
+        <div class="card-header" style="cursor:default;"><span class="card-icon">📞</span><span class="card-title">Контакты</span></div>
+        <div class="card-body" id="contacts"></div>
+    </div>
+    <div class="footer">Клиника проф. Калиниченко · Бушуева А.О. · Фомин А.М.<br>Протокол от 24.02.2026 · v2.0</div>
+</div>
+
+<!-- Bottom Nav -->
+<div class="bnav">
+    <button class="on" onclick="go('today',this)"><span class="ni">💊</span>Сегодня</button>
+    <button onclick="go('proc',this)"><span class="ni">💉</span>Процедуры</button>
+    <button onclick="go('food',this)"><span class="ni">🥩</span>Питание</button>
+    <button onclick="go('cal',this)"><span class="ni">📅</span>Календарь</button>
+    <button onclick="go('info',this)"><span class="ni">ℹ️</span>Инфо</button>
+</div>
+
+<script>
+// ===== DATA =====
+const BLOCKS = [
+    { id:'morning', icon:'🌅', title:'Утро · Завтрак', pills:[
+        { emoji:'☀️', name:'Витамин D 10 000 ME', dose:'1 капс.', tag:'постоянно', perm:true },
+        { emoji:'💛', name:'Альфа Д3 1 мкг', dose:'1 капс.', tag:'2 мес.' },
+        { emoji:'🦴', name:'Кальциум триактив', dose:'1 капс.', tag:'≥2 мес.', isNew:true },
+        { emoji:'💚', name:'Фолацин 5 мг', dose:'1 табл.', tag:'2 мес.' },
+    ]},
+    { id:'day', icon:'☀️', title:'День', pills:[
+        { emoji:'💙', name:'Магне В6 Форте', dose:'1 табл.', tag:'2 мес.' },
+        { emoji:'🟣', name:'В-комплекс Смарт Лайф', dose:'½ пипетки', tag:'2 мес.' },
+    ]},
+    { id:'evening', icon:'🌅', title:'Вечер', pills:[
+        { emoji:'🟠', name:'Омега-3 (вечерний)', dose:'1 капс.', tag:'постоянно', perm:true },
+        { emoji:'🦴', name:'Кальциум триактив', dose:'1 капс. (2-й)', tag:'≥2 мес.', isNew:true },
+    ]},
+    { id:'night', icon:'🌙', title:'На ночь', pills:[
+        { emoji:'💙', name:'Магне В6 Форте', dose:'1 табл.', tag:'+ стресс' },
+        { emoji:'🔴', name:'Утрожестан 100 мг', dose:'1 капс.', tag:'2 мес.' },
+        { emoji:'🟡', name:'Аевит 100 000 ME', dose:'1 капс.', tag:'2 мес.' },
+    ]},
+];
+
+const LABS_B = ['ЛГ (лютеинизирующий гормон)','ФСГ (фолликулостимулирующий гормон)','ГСПГ (глобулин, связ. половые гормоны)','Общий тестостерон'];
+const LABS_A = ['Общий тестостерон (через 3 нед. после укола)'];
+const FOOD_Y = ['Яйца в любом виде','Кисломолочка: сметана, творог, сыр, йогурт без добавок, кефир, ряженка','Рыба любая, включая жирные сорта','Мясо любое в любом виде','Морепродукты любые','Овощи (кроме крахмалистых: картофель, кукуруза)','Орехи — до 50 г/сутки','Зелёные яблоки, киви'];
+const FOOD_N = ['Сахар, крупы (овсянка, гречка), хлеб, макароны','Хлебобулочные и кондитерские изделия','Молоко (кисломолочка — можно!)','Колбасы, сосиски, сардельки','Сладкие напитки, натуральные соки','Сладкие фрукты, сухофрукты, семечки','Копчёная, вяленая, солёная рыба, сельдь'];
+const TGT = [{i:'📏',l:'Окружность талии',v:'< 94 см'},{i:'💧',l:'Вода',v:'≥ 2.5 л/сут'},{i:'🚶',l:'Шаги',v:'≥ 10 000/день'},{i:'🌳',l:'Прогулка',v:'≥ 30 мин'},{i:'🥩',l:'Белок',v:'1.5 г/кг'},{i:'🔥',l:'Безуглеводка',v:'~1.5 мес.'}];
+const GEN = [{g:'ГСПГ S/S 7/8',d:'Сниженная биодоступность стероидных гормонов'},{g:'Ароматаза A/A',d:'Пониженная конвертация Т→Э (плюс)'},{g:'Эстроген рец. 1 C/C',d:'Повышенная чувствительность — следить на курсе'},{g:'КОМТ A/A',d:'Медленное восстановление после стресса'},{g:'Прогестерон рец. C/A',d:'Пониженная чувствительность → Утрожестан'},{g:'FADS1/FADS2',d:'Омега-3 постоянно (мутация)'},{g:'1α-гидроксилаза A/A',d:'Альфа Д3 возможно постоянно (мутация)'}];
+const DIAG = ['Ожирение (E66.0)','Недостаточность железа','Недостаточность витамина D','Возрастной андрогенный дефицит','Жировой гепатоз печени (стеатоз)'];
+const CONT = [{l:'Фомин А.М. (эндокринолог)',v:'+7 985 781-23-03',t:'79857812303'},{l:'Клиника',v:'+7 495 937-34-03',t:'74959373403'},{l:'Аптека клиники',v:'+7 926 968-55-22',t:'79269685522'}];
+
+const START='2026-02-24', DAYS=60, OMEGA=4, WATER=10;
+const MO=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const MON=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+
+let cur=new Date(), calM=new Date(), D={};
+
+function dk(d){if(typeof d==='string')return d;return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function today(){return dk(new Date());}
+function load(){try{const r=localStorage.getItem('ht-v2');if(r)D=JSON.parse(r);}catch(e){}if(!D.days)D.days={};if(!D.drips)D.drips=0;if(!D.neuro)D.neuro=0;if(!D.labs)D.labs={};if(!D.nebido)D.nebido=false;if(!D.theme)D.theme='light';}
+function save(){try{localStorage.setItem('ht-v2',JSON.stringify(D));}catch(e){}}
+function gd(k){if(!D.days[k])D.days[k]={blocks:{},omega:0,water:0};return D.days[k];}
+
+// Theme
+function applyTheme(){document.documentElement.setAttribute('data-theme',D.theme);document.getElementById('themeBtn').textContent=D.theme==='dark'?'☀️':'🌙';}
+function toggleTheme(){D.theme=D.theme==='dark'?'light':'dark';applyTheme();save();}
+
+// Date
+function chgDate(dir){cur.setDate(cur.getDate()+dir);render();}
+
+// Tabs
+function go(t,btn){
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+    document.getElementById('t-'+t).classList.add('on');
+    document.querySelectorAll('.bnav button').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    if(t==='cal')renderCal();
+}
+
+// Toggle block
+function togBlock(k,bid){const d=gd(k);d.blocks[bid]=!d.blocks[bid];save();render();}
+
+// Omega
+function setOmega(k,n){const d=gd(k);d.omega=d.omega===n?n-1:n;save();render();}
+
+// Water
+function setWater(k,n){const d=gd(k);d.water=d.water===n?n-1:n;save();render();}
+
+// Procedures
+function chgProc(type,dir){
+    if(type==='drips')D.drips=Math.max(0,Math.min(5,D.drips+dir));
+    else D.neuro=Math.max(0,Math.min(14,D.neuro+dir));
+    save();renderProc();
+}
+
+// Labs
+function togLab(id){D.labs[id]=!D.labs[id];save();renderLabs();}
+function togNebido(){D.nebido=!D.nebido;save();renderLabs();}
+
+// ===== RENDER =====
+function render(){
+    const k=dk(cur);
+    document.getElementById('curDate').textContent=cur.getDate()+' '+MO[cur.getMonth()];
+
+    // Course info
+    const end=new Date(START);end.setDate(end.getDate()+DAYS);
+    const now=new Date();now.setHours(0,0,0,0);
+    const diff=Math.ceil((end-now)/864e5);
+    document.getElementById('courseInfo').textContent=diff>0?'Осталось '+diff+' дней курса':'Основной курс завершён 🎉';
+
+    const d=gd(k);
+
+    // Pill blocks
+    let html='';
+    BLOCKS.forEach(b=>{
+        const done=!!d.blocks[b.id];
+        html+=`<div class="card ${done?'done':''}" onclick="togBlock('${k}','${b.id}')">
+            <div class="card-header">
+                <div class="card-check">${done?'✓':''}</div>
+                <span class="card-icon">${b.icon}</span>
+                <span class="card-title">${b.title}</span>
+            </div>
+            <div class="card-body">${b.pills.map(p=>`<div class="pill-line">
+                <span class="pill-emoji">${p.emoji}</span>
+                <span>${p.name} — ${p.dose}</span>
+                ${p.isNew?'<span class="pill-tag new">NEW</span>':''}
+                ${p.perm?'<span class="pill-tag">постоянно</span>':''}
+            </div>`).join('')}</div>
+        </div>`;
+    });
+    document.getElementById('pillBlocks').innerHTML=html;
+
+    // Omega
+    let ob='';
+    for(let i=1;i<=OMEGA;i++)ob+=`<button class="omega-btn ${i<=d.omega?'on':''}" onclick="event.stopPropagation();setOmega('${k}',${i})">${i}</button>`;
+    document.getElementById('omegaBtns').innerHTML=ob;
+
+    // Water
+    let wh='';
+    for(let i=1;i<=WATER;i++)wh+=`<button class="water-btn ${i<=d.water?'on':''}" onclick="setWater('${k}',${i})">💧</button>`;
+    document.getElementById('wGrid').innerHTML=wh;
+    document.getElementById('wCnt').textContent=d.water;
+
+    // Progress
+    const blocksDone=BLOCKS.filter(b=>d.blocks[b.id]).length;
+    const total=BLOCKS.length+OMEGA;
+    const done2=blocksDone+d.omega;
+    const pct=Math.round(done2/total*100);
+    const bar=document.getElementById('progBar');
+    bar.style.width=pct+'%';bar.textContent=pct+'%';
+
+    renderProc();renderLabs();
+}
+
+function renderProc(){
+    document.getElementById('dripCnt').textContent=D.drips+'/5';
+    document.getElementById('dripBar').style.width=(D.drips/5*100)+'%';
+    document.getElementById('neuroCnt').textContent=D.neuro+'/14';
+    document.getElementById('neuroBar').style.width=(D.neuro/14*100)+'%';
+}
+
+function renderLabs(){
+    document.getElementById('labsBefore').innerHTML=LABS_B.map((l,i)=>{
+        const done=D.labs['b'+i];
+        return `<div class="lab-row ${done?'done':''}" onclick="togLab('b${i}')"><div class="lab-check">${done?'✓':''}</div><span class="lab-text">${l}</span></div>`;
+    }).join('');
+    const nd=D.nebido;
+    document.getElementById('nebidoRow').innerHTML=`<div class="lab-row ${nd?'done':''}" onclick="togNebido()"><div class="lab-check">${nd?'✓':''}</div><span class="lab-text">💉 Небидо 1000 мг — укол сделан</span></div>`;
+    document.getElementById('labsAfter').innerHTML=LABS_A.map((l,i)=>{
+        const done=D.labs['a'+i];
+        return `<div class="lab-row ${done?'done':''}" onclick="togLab('a${i}')"><div class="lab-check">${done?'✓':''}</div><span class="lab-text">${l}</span></div>`;
+    }).join('');
+}
+
+function renderStatic(){
+    document.getElementById('foodYes').innerHTML=FOOD_Y.map(f=>`<div class="food-line"><span class="f-dot f-yes">●</span>${f}</div>`).join('');
+    document.getElementById('foodNo').innerHTML=FOOD_N.map(f=>`<div class="food-line"><span class="f-dot f-no">●</span>${f}</div>`).join('');
+    document.getElementById('targets').innerHTML=TGT.map(t=>`<div class="target-row"><span class="t-icon">${t.i}</span><span class="t-label">${t.l}</span><span class="t-val">${t.v}</span></div>`).join('');
+    document.getElementById('genetics').innerHTML=GEN.map(g=>`<div class="gene-row"><div class="gene-name">${g.g}</div><div class="gene-desc">${g.d}</div></div>`).join('');
+    document.getElementById('diagnoses').innerHTML=DIAG.map(d=>`<div class="food-line"><span class="f-dot f-yes">·</span>${d}</div>`).join('');
+    document.getElementById('contacts').innerHTML=CONT.map(c=>`<div class="contact-row"><span class="c-label">${c.l}</span><span class="c-val"><a href="tel:${c.t}">${c.v}</a></span></div>`).join('');
+}
+
+// Calendar
+function chgMonth(dir){calM.setMonth(calM.getMonth()+dir);renderCal();}
+function renderCal(){
+    const y=calM.getFullYear(),m=calM.getMonth();
+    document.getElementById('calMo').textContent=MON[m]+' '+y;
+    const f=new Date(y,m,1),l=new Date(y,m+1,0);
+    let s=f.getDay();if(s===0)s=7;s--;
+    const td=today();
+    let h=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(d=>`<div class="cal-dn">${d}</div>`).join('');
+    for(let i=0;i<s;i++)h+='<div class="cal-d empty"></div>';
+    let dT=0,dG=0,tW=0,streak=0,mx=0;
+    for(let d=1;d<=l.getDate();d++){
+        const k=dk(new Date(y,m,d));
+        const dd=D.days[k];
+        let c='';if(k===td)c+=' today';
+        if(dd){
+            const bd=BLOCKS.filter(b=>dd.blocks&&dd.blocks[b.id]).length;
+            const sc=bd+(dd.omega||0);
+            const pct=sc/(BLOCKS.length+OMEGA);
+            dT++;tW+=dd.water||0;
+            if(pct>=0.7){c+=' good';dG++;streak++;mx=Math.max(mx,streak);}
+            else if(pct>0){c+=' partial';streak=0;}
+            else streak=0;
+        } else streak=0;
+        h+=`<div class="cal-d${c}" onclick="jumpTo(${y},${m},${d})">${d}</div>`;
+    }
+    document.getElementById('calGrid').innerHTML=h;
+    document.getElementById('calStats').innerHTML=`
+        <div class="cal-s"><div class="cal-s-v">${dG}</div><div class="cal-s-l">Дней выполнено</div></div>
+        <div class="cal-s"><div class="cal-s-v">${dT?Math.round(dG/dT*100):0}%</div><div class="cal-s-l">Успешность</div></div>
+        <div class="cal-s"><div class="cal-s-v">${mx}</div><div class="cal-s-l">Макс. подряд</div></div>
+        <div class="cal-s"><div class="cal-s-v">${tW?((tW*0.25).toFixed(1)):0}л</div><div class="cal-s-l">Выпито воды</div></div>`;
+}
+function jumpTo(y,m,d){
+    cur=new Date(y,m,d);
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+    document.getElementById('t-today').classList.add('on');
+    document.querySelectorAll('.bnav button').forEach((b,i)=>b.classList.toggle('on',i===0));
+    render();
+}
+
+// INIT
+load();applyTheme();renderStatic();render();
+</script>
+</body>
+</html>
