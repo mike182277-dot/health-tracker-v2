@@ -365,10 +365,10 @@
     <div class="card" id="omegaCard">
         <div class="card-header" style="cursor:default;">
             <span class="card-icon">🟠</span>
-            <span class="card-title">Омега-3 — приёмы за день</span>
+            <span class="card-title">Омега-3 — отдельный трекер приемов</span>
         </div>
         <div class="omega-wrap">
-            <div class="omega-label">Цель: 4000 мг/сут (3–4 приёма)</div>
+            <div class="omega-label">Цель: не менее 4000 мг/сут (3–4 приема)</div>
             <div class="omega-btns" id="omegaBtns"></div>
         </div>
     </div>
@@ -380,7 +380,7 @@
             <span class="card-title">Вода</span>
         </div>
         <div class="card-body">
-            <div class="water-target">Цель: 2.5 — 3 литра в день</div>
+            <div class="water-target">Цель: минимум 2.5 литра в день</div>
             <div class="water-count"><strong id="wCnt">0</strong> <span>/ 10</span></div>
             <div class="water-grid" id="wGrid"></div>
             <div class="water-note">
@@ -412,7 +412,7 @@
     <div class="sec-title">🧪 Анализы ПОСЛЕ укола (через 3 нед.)</div>
     <div class="proc-card">
         <div id="labsAfter"></div>
-        <div class="lab-note">Результат → Фомину А.М. +7 985 781-23-03</div>
+        <div class="lab-note">Через 3 недели: общий тестостерон → сообщить Фомину А.М.</div>
     </div>
 
     <!-- Капельницы -->
@@ -433,7 +433,7 @@
             <span style="font-size:14px;color:var(--muted);">капельниц</span>
             <button class="proc-btn" onclick="chgProc('drips',1)">+</button>
         </div>
-        <div class="lab-note">⚠️ После 5-й капельницы → сдать СРБ, АСТ, АЛТ</div>
+        <div class="lab-note">ℹ️ Дополнительно для самоконтроля можно обсудить с врачом СРБ, АСТ, АЛТ после курса</div>
     </div>
 
     <!-- Нейромультивит -->
@@ -461,8 +461,9 @@
 <div class="tab" id="t-food">
     <div class="food-banner">
         <h3>🥩 Безуглеводный переход</h3>
-        <p>~1.5 месяца · Белок 1.5 г/кг · Цель: талия < 94 см</p>
+        <p>~1.5 месяца · Цель: талия < 94 см</p>
     </div>
+    <div class="water-note" style="margin-top:-4px;margin-bottom:14px;"><span>📝</span> Личный ориентир: белок ~1.5 г/кг — удобно для трекинга, но это не отдельный пункт из листа назначений</div>
     <div class="card">
         <div class="card-header" style="cursor:default;"><span class="card-icon">✅</span><span class="card-title">Можно</span></div>
         <div class="card-body" id="foodYes"></div>
@@ -482,6 +483,7 @@
 <!-- TAB: Прогресс -->
 <div class="tab" id="t-prog">
     <!-- Course Ring -->
+    <div id="courseStartInfo"></div>
     <div class="ring-wrap">
         <svg width="180" height="180" viewBox="0 0 180 180" id="ringSvg">
             <circle cx="90" cy="90" r="78" stroke="var(--border)" stroke-width="10" fill="none"/>
@@ -533,7 +535,7 @@
         <div class="card-header" style="cursor:default;"><span class="card-icon">📞</span><span class="card-title">Контакты</span></div>
         <div class="card-body" id="contacts"></div>
     </div>
-    <div class="footer">Клиника проф. Калиниченко · Бушуева А.О. · Фомин А.М.<br>Протокол от 24.02.2026 · v2.0</div>
+    <div class="footer">Клиника проф. Калиниченко · Бушуева А.О. · Фомин А.М.<br>Протокол от 24.02.2026 · v3.0</div>
 </div>
 
 <!-- Bottom Nav -->
@@ -548,24 +550,22 @@
 <script>
 // ===== DATA =====
 const BLOCKS = [
-    { id:'morning', icon:'🌅', title:'Утро · Завтрак', pills:[
-        { emoji:'☀️', name:'Витамин D 10 000 ME', dose:'1 капс.', tag:'постоянно', perm:true },
-        { emoji:'💛', name:'Альфа Д3 1 мкг', dose:'1 капс.', tag:'2 мес.' },
+    { id:'morning', icon:'🌅', title:'Утро · завтрак', pills:[
+        { emoji:'☀️', name:'Витамин D 10 000 МЕ', dose:'1 капс.', tag:'постоянно', perm:true },
+        { emoji:'💛', name:'Альфа D3 1 мкг', dose:'1 капс.', tag:'2 мес.' },
         { emoji:'🦴', name:'Кальциум триактив', dose:'1 капс.', tag:'≥2 мес.', isNew:true },
         { emoji:'💚', name:'Фолацин 5 мг', dose:'1 табл.', tag:'2 мес.' },
     ]},
     { id:'day', icon:'☀️', title:'День', pills:[
-        { emoji:'💙', name:'Магне В6 Форте', dose:'1 табл.', tag:'2 мес.' },
-        { emoji:'🟣', name:'В-комплекс Смарт Лайф', dose:'½ пипетки', tag:'2 мес.' },
+        { emoji:'💙', name:'Магний B6 форте', dose:'1 табл.', tag:'2 мес.' },
+        { emoji:'🟣', name:'B-комплекс Smart Life', dose:'½ пипетки', tag:'2 мес.' },
+        { emoji:'⚡', name:'Магний B6 форте', dose:'доп. прием при стрессе', tag:'по ситуации', hint:true },
     ]},
-    { id:'evening', icon:'🌅', title:'Вечер', pills:[
-        { emoji:'🟠', name:'Омега-3 (вечерний)', dose:'1 капс.', tag:'постоянно', perm:true },
-        { emoji:'🦴', name:'Кальциум триактив', dose:'1 капс. (2-й)', tag:'≥2 мес.', isNew:true },
-    ]},
-    { id:'night', icon:'🌙', title:'На ночь', pills:[
-        { emoji:'💙', name:'Магне В6 Форте', dose:'1 табл.', tag:'+ стресс' },
+    { id:'evening', icon:'🌙', title:'Вечер · перед сном', pills:[
+        { emoji:'🦴', name:'Кальциум триактив', dose:'1 капс. (2-й прием)', tag:'≥2 мес.', isNew:true },
+        { emoji:'💙', name:'Магний B6 форте', dose:'1 табл. на ночь', tag:'2 мес.' },
         { emoji:'🔴', name:'Утрожестан 100 мг', dose:'1 капс.', tag:'2 мес.' },
-        { emoji:'🟡', name:'Аевит 100 000 ME', dose:'1 капс.', tag:'2 мес.' },
+        { emoji:'🟡', name:'Аевит 100 000 МЕ', dose:'1 капс.', tag:'2 мес.' },
     ]},
 ];
 
@@ -573,7 +573,7 @@ const LABS_B = ['ЛГ (лютеинизирующий гормон)','ФСГ (ф
 const LABS_A = ['Общий тестостерон (через 3 нед. после укола)'];
 const FOOD_Y = ['Яйца в любом виде','Кисломолочка: сметана, творог, сыр, йогурт без добавок, кефир, ряженка','Рыба любая, включая жирные сорта','Мясо любое в любом виде','Морепродукты любые','Овощи (кроме крахмалистых: картофель, кукуруза)','Орехи — до 50 г/сутки','Зелёные яблоки, киви'];
 const FOOD_N = ['Сахар, крупы (овсянка, гречка), хлеб, макароны','Хлебобулочные и кондитерские изделия','Молоко (кисломолочка — можно!)','Колбасы, сосиски, сардельки','Сладкие напитки, натуральные соки','Сладкие фрукты, сухофрукты, семечки','Копчёная, вяленая, солёная рыба, сельдь'];
-const TGT = [{i:'📏',l:'Окружность талии',v:'< 94 см'},{i:'💧',l:'Вода',v:'≥ 2.5 л/сут'},{i:'🚶',l:'Шаги',v:'≥ 10 000/день'},{i:'🌳',l:'Прогулка',v:'≥ 30 мин'},{i:'🥩',l:'Белок',v:'1.5 г/кг'},{i:'🔥',l:'Безуглеводка',v:'~1.5 мес.'}];
+const TGT = [{i:'📏',l:'Окружность талии',v:'< 94 см'},{i:'💧',l:'Вода',v:'минимум 2.5 л/сут'},{i:'🚶',l:'Шаги',v:'≥ 10 000/день'},{i:'🌳',l:'Прогулка',v:'≥ 30 мин'},{i:'🔥',l:'Безуглеводный режим',v:'~1.5 мес.'}];
 const GEN = [{g:'ГСПГ S/S 7/8',d:'Сниженная биодоступность стероидных гормонов'},{g:'Ароматаза A/A',d:'Пониженная конвертация Т→Э (плюс)'},{g:'Эстроген рец. 1 C/C',d:'Повышенная чувствительность — следить на курсе'},{g:'КОМТ A/A',d:'Медленное восстановление после стресса'},{g:'Прогестерон рец. C/A',d:'Пониженная чувствительность → Утрожестан'},{g:'FADS1/FADS2',d:'Омега-3 постоянно (мутация)'},{g:'1α-гидроксилаза A/A',d:'Альфа Д3 возможно постоянно (мутация)'}];
 const DIAG = ['Ожирение (E66.0)','Недостаточность железа','Недостаточность витамина D','Возрастной андрогенный дефицит','Жировой гепатоз печени (стеатоз)'];
 const CONT = [{l:'Фомин А.М. (эндокринолог)',v:'+7 985 781-23-03',t:'79857812303'},{l:'Клиника',v:'+7 495 937-34-03',t:'74959373403'},{l:'Аптека клиники',v:'+7 926 968-55-22',t:'79269685522'}];
@@ -586,7 +586,10 @@ let cur=new Date(), D={};
 
 function dk(d){if(typeof d==='string')return d;return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function today(){return dk(new Date());}
-function load(){try{const r=localStorage.getItem('ht-v2');if(r)D=JSON.parse(r);}catch(e){}if(!D.days)D.days={};if(!D.drips)D.drips=0;if(!D.neuro)D.neuro=0;if(!D.labs)D.labs={};if(!D.nebido)D.nebido=false;if(!D.theme)D.theme='light';}
+function load(){try{const r=localStorage.getItem('ht-v2');if(r)D=JSON.parse(r);}catch(e){}if(!D.days)D.days={};if(!D.drips)D.drips=0;if(!D.neuro)D.neuro=0;if(!D.labs)D.labs={};if(!D.nebido)D.nebido=false;if(!D.theme)D.theme='light';if(!D.courseStart)D.courseStart=null;}
+function startCourse(){if(D.courseStart&&!confirm('Курс уже запущен ('+formatDMY(D.courseStart)+'). Сбросить и начать заново?'))return;D.courseStart=dk(new Date());save();render();renderProgress();}
+function resetCourse(){if(!confirm('Точно сбросить дату старта?'))return;D.courseStart=null;save();render();renderProgress();}
+function formatDMY(s){const d=new Date(s+'T00:00:00');return d.getDate()+' '+MO[d.getMonth()]+' '+d.getFullYear();}
 function save(){try{localStorage.setItem('ht-v2',JSON.stringify(D));}catch(e){}}
 function gd(k){if(!D.days[k])D.days[k]={blocks:{},omega:0,water:0};return D.days[k];}
 
@@ -632,10 +635,19 @@ function render(){
     document.getElementById('curDate').textContent=cur.getDate()+' '+MO[cur.getMonth()];
 
     // Course info
-    const end=new Date(START);end.setDate(end.getDate()+DAYS);
-    const now=new Date();now.setHours(0,0,0,0);
-    const diff=Math.ceil((end-now)/864e5);
-    document.getElementById('courseInfo').textContent=diff>0?'Осталось '+diff+' дней курса':'Основной курс завершён 🎉';
+    const ci=document.getElementById('courseInfo');
+    if(!D.courseStart){
+        ci.innerHTML='<button onclick="startCourse()" style="background:var(--accent);color:#fff;border:none;padding:8px 20px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;margin-top:4px;">🚀 Старт курса</button>';
+    } else {
+        const startD=new Date(D.courseStart+'T00:00:00');
+        const end=new Date(startD);end.setDate(end.getDate()+DAYS);
+        const now=new Date();now.setHours(0,0,0,0);
+        const diff=Math.ceil((end-now)/864e5);
+        const dayNum=Math.floor((now-startD)/864e5)+1;
+        ci.innerHTML=diff>0?
+            '<span>День <b>'+dayNum+'</b> из '+DAYS+' · осталось '+diff+' дн.</span>':
+            '<span>Курс завершён 🎉</span>';
+    }
 
     const d=gd(k);
 
@@ -652,8 +664,9 @@ function render(){
             <div class="card-body">${b.pills.map(p=>`<div class="pill-line">
                 <span class="pill-emoji">${p.emoji}</span>
                 <span>${p.name} — ${p.dose}</span>
-                ${p.isNew?'<span class="pill-tag new">NEW</span>':''}
+                ${p.isNew?'<span class="pill-tag new">new</span>':''}
                 ${p.perm?'<span class="pill-tag">постоянно</span>':''}
+                ${p.hint?'<span class="pill-tag" style="background:var(--water-bg);color:var(--water);">доп.</span>':''}
             </div>`).join('')}</div>
         </div>`;
     });
@@ -712,8 +725,27 @@ function renderStatic(){
 
 // Progress Dashboard
 function renderProgress(){
+    if(!D.courseStart){
+        document.getElementById('courseStartInfo').innerHTML='';
+        document.getElementById('ringDay').textContent='—';
+        document.getElementById('ringCircle').style.strokeDashoffset=490;
+        document.getElementById('ringSub').textContent='Нажми «Старт курса» вверху';
+        document.getElementById('streakNum').textContent='0';
+        document.getElementById('streakSub').textContent='Начни серию сегодня!';
+        document.getElementById('statsGrid').innerHTML='';
+        document.getElementById('milestones').innerHTML='<div style="padding:16px;text-align:center;color:var(--muted);font-size:14px;">Запусти курс, чтобы увидеть вехи</div>';
+        document.getElementById('timeline').innerHTML='<div style="padding:16px;text-align:center;color:var(--muted);font-size:14px;">Запусти курс, чтобы увидеть таймлайн</div>';
+        return;
+    }
+
     const now=new Date();now.setHours(0,0,0,0);
-    const start=new Date(START);
+    const start=new Date(D.courseStart+'T00:00:00');
+    const endDate=new Date(start);endDate.setDate(endDate.getDate()+DAYS);
+    document.getElementById('courseStartInfo').innerHTML=`<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px;font-size:13px;color:var(--muted);">
+        <span>🚀 Старт: <b style="color:var(--text)">${formatDMY(D.courseStart)}</b></span>
+        <span>→</span>
+        <span>🏁 Финиш: <b style="color:var(--text)">${formatDMY(dk(endDate))}</b></span>
+    </div><div style="text-align:center;margin-bottom:14px;"><button onclick="resetCourse()" style="background:none;border:1px solid var(--border);color:var(--muted);padding:4px 12px;border-radius:8px;font-size:11px;cursor:pointer;">Сбросить дату старта</button></div>`;
     const dayNum=Math.max(0,Math.floor((now-start)/864e5)+1);
     const daysCapped=Math.min(dayNum,DAYS);
     const remain=Math.max(0,DAYS-dayNum);
@@ -763,7 +795,7 @@ function renderProgress(){
         {id:'m_labs',icon:'🧪',name:'Анализы до Небидо сданы',desc:'ЛГ, ФСГ, ГСПГ, тестостерон'},
         {id:'m_nebido',icon:'💉',name:'Укол Небидо сделан',desc:'Тестостерон 1000 мг'},
         {id:'m_drip1',icon:'🩸',name:'Первая капельница',desc:'Тиоктацид + Венофер'},
-        {id:'m_drip5',icon:'🩸',name:'Все 5 капельниц пройдены',desc:'Сдать СРБ, АСТ, АЛТ'},
+        {id:'m_drip5',icon:'🩸',name:'Все 5 капельниц пройдены',desc:'Курс инфузий завершён'},
         {id:'m_neuro10',icon:'💊',name:'10 уколов Нейромультивита',desc:'Переход на 1 р/нед'},
         {id:'m_neuro14',icon:'💊',name:'Все 14 уколов пройдены',desc:'Курс завершён'},
         {id:'m_labs_after',icon:'🧪',name:'Контроль тестостерона сдан',desc:'Через 3 нед. после Небидо'},
@@ -795,7 +827,7 @@ function renderProgress(){
     }).join('');
 
     // Timeline
-    const startD=new Date(START);
+    const startD=new Date(D.courseStart+'T00:00:00');
     const events=[
         {name:'Сдать анализы: ЛГ, ФСГ, ГСПГ, тестостерон', offset:0, dur:'до укола Небидо'},
         {name:'Начать безуглеводный переход', offset:0, dur:'на ~1.5 месяца'},
@@ -804,7 +836,7 @@ function renderProgress(){
         {name:'Капельница #2', offset:14, dur:'через 7–10 дней'},
         {name:'Капельница #3', offset:21, dur:''},
         {name:'Капельница #4', offset:28, dur:''},
-        {name:'Капельница #5 + сдать СРБ, АСТ, АЛТ', offset:35, dur:''},
+        {name:'Капельница #5', offset:35, dur:'завершение курса инфузий'},
         {name:'Контроль тестостерона (анализ)', offset:28, dur:'через 3 нед. после Небидо'},
         {name:'Консультация Фомина А.М.', offset:42, dur:'обсудить результаты'},
         {name:'Оценка безуглеводного перехода', offset:45, dur:'должно уйти чувство голода'},
