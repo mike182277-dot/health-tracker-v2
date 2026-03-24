@@ -320,6 +320,38 @@
             display: inline-block; text-decoration: none;
         }
 
+
+        .lab-row.blocked { opacity: 0.65; }
+        .lab-row.blocked .lab-text { text-decoration: none; }
+        .lab-row.blocked .lab-check { border-style: dashed; }
+        .tl-dot.overdue { background: var(--red); }
+
+        .course-controls-box {
+            background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+            box-shadow: var(--shadow); padding: 12px 14px; margin: 0 0 14px;
+        }
+        .course-controls-top { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+        .course-controls-meta { font-size: 13px; color: var(--muted); }
+        .course-controls-actions { display:flex; gap:8px; flex-wrap:wrap; }
+        .mini-btn {
+            border:1px solid var(--border); background:var(--card); color:var(--text);
+            padding:8px 12px; border-radius:10px; font-size:12px; font-weight:600; cursor:pointer; text-decoration:none;
+        }
+        .mini-btn.primary { background: var(--accent); border-color: var(--accent); color:#fff; }
+        .mini-btn.warn { color: var(--warn); }
+
+        .next-card {
+            background: linear-gradient(180deg, var(--accent-bg), transparent), var(--card);
+            border: 1px solid rgba(0,184,148,0.28); border-radius: 16px; box-shadow: var(--shadow);
+            padding: 16px; margin-bottom: 14px;
+        }
+        .next-card.overdue { border-color: rgba(214,48,49,0.35); background: linear-gradient(180deg, var(--red-bg), transparent), var(--card); }
+        .next-card.done { border-color: var(--border); }
+        .next-kicker { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 8px; }
+        .next-name { font-size: 18px; font-weight: 700; line-height: 1.25; }
+        .next-meta { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.45; }
+        .next-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top: 12px; }
+
         /* Bottom nav */
         .bnav {
             position: fixed; bottom: 0; left: 0; right: 0;
@@ -351,8 +383,7 @@
         <span class="cur-date" id="curDate"></span>
         <button onclick="chgDate(1)">›</button>
     </div>
-    <div class="course-info" id="courseInfo"></div>
-</div>
+    </div>
 
 <!-- TAB: Сегодня -->
 <div class="tab on" id="t-today">
@@ -361,17 +392,7 @@
     </div>
     <div id="pillBlocks"></div>
 
-    <!-- Omega -->
-    <div class="card" id="omegaCard">
-        <div class="card-header" style="cursor:default;">
-            <span class="card-icon">🟠</span>
-            <span class="card-title">Омега-3 — отдельный трекер приемов</span>
-        </div>
-        <div class="omega-wrap">
-            <div class="omega-label">Цель: не менее 4000 мг/сут (3–4 приема)</div>
-            <div class="omega-btns" id="omegaBtns"></div>
-        </div>
-    </div>
+    <div class="water-note" style="margin-top:4px;margin-bottom:14px;"><span>🟠</span> Омега-3 встроена в блоки приёма: утро — 2 капсулы, день — 1 капсула, вечер — 2 капсулы. Итого 5 капсул / 4500 мг в сутки.</div>
 
     <!-- Water -->
     <div class="card">
@@ -380,7 +401,7 @@
             <span class="card-title">Вода</span>
         </div>
         <div class="card-body">
-            <div class="water-target">Цель: минимум 2.5 литра в день</div>
+            <div class="water-target">Цель: минимум 2.5 литра в день (10 × 250 мл)</div>
             <div class="water-count"><strong id="wCnt">0</strong> <span>/ 10</span></div>
             <div class="water-grid" id="wGrid"></div>
             <div class="water-note">
@@ -392,6 +413,8 @@
 
 <!-- TAB: Процедуры -->
 <div class="tab" id="t-proc">
+    <div id="procNextAction"></div>
+
     <!-- Анализы до Небидо -->
     <div class="sec-title">🧪 Анализы ДО укола Небидо</div>
     <div class="proc-card">
@@ -404,7 +427,7 @@
     <div class="proc-card">
         <div id="nebidoRow"></div>
         <div class="proc-header">
-            <div class="proc-desc">Небидо 1000 мг (4 мл) в/м · Рецепт 45РФ №979190</div>
+            <div class="proc-desc">Небидо 1000 мг (4 мл) в/м · Рецепт 45РФ №979190 · контроль общего тестостерона через 3 недели</div>
         </div>
     </div>
 
@@ -421,19 +444,19 @@
         <div class="proc-header">
             <div class="proc-top">
                 <span class="proc-icon">💉</span>
-                <span class="proc-name">Тиоктацид 300 + Венофер 100</span>
+                <span class="proc-name">Тиоктацид 300 мг → затем Венофер / Ликфер 100 мг</span>
                 <span class="proc-counter" id="dripCnt">0/5</span>
             </div>
-            <div class="proc-desc">Антиоксидант + железо в одной капельнице. Снижение воспаления и восполнение дефицита железа параллельно.</div>
+            <div class="proc-desc">Тиоктацид 300 мг на 200 мл физраствора, медленно капельно 35–40 мин; затем Венофер или Ликфер 100 мг на 100 мл физраствора.</div>
             <div class="proc-bar"><div class="proc-bar-fill" id="dripBar"></div></div>
-            <div class="proc-schedule">Интервал 7–10 дней</div>
+            <div class="proc-schedule" id="dripSched">Всего 5 капельниц · интервал 7–10 дней</div>
         </div>
         <div class="proc-btns">
             <button class="proc-btn" onclick="chgProc('drips',-1)">−</button>
             <span style="font-size:14px;color:var(--muted);">капельниц</span>
             <button class="proc-btn" onclick="chgProc('drips',1)">+</button>
         </div>
-        <div class="lab-note">ℹ️ Дополнительно для самоконтроля можно обсудить с врачом СРБ, АСТ, АЛТ после курса</div>
+        <div class="lab-note">ℹ️ СРБ / АСТ / АЛТ — не обязательный пункт протокола; только как доп. самоконтроль по согласованию с врачом</div>
     </div>
 
     <!-- Нейромультивит -->
@@ -447,7 +470,7 @@
             </div>
             <div class="proc-desc">Витамины B1, B6, B12 — нервная система, энергия, снижение гомоцистеина</div>
             <div class="proc-bar"><div class="proc-bar-fill" id="neuroBar"></div></div>
-            <div class="proc-schedule">2 р/нед × 10, потом 1 р/нед × 4</div>
+            <div class="proc-schedule" id="neuroSched">2 р/нед × 10, потом 1 р/нед × 4</div>
         </div>
         <div class="proc-btns">
             <button class="proc-btn" onclick="chgProc('neuro',-1)">−</button>
@@ -461,9 +484,10 @@
 <div class="tab" id="t-food">
     <div class="food-banner">
         <h3>🥩 Безуглеводный переход</h3>
-        <p>~1.5 месяца · Цель: талия < 94 см</p>
+        <p>~1.5 месяца · Цель: талия &lt; 94 см</p>
     </div>
-    <div class="water-note" style="margin-top:-4px;margin-bottom:14px;"><span>📝</span> Личный ориентир: белок ~1.5 г/кг — удобно для трекинга, но это не отдельный пункт из листа назначений</div>
+    <div class="water-note" style="margin-top:-4px;margin-bottom:10px;"><span>📝</span> Личный ориентир: белок ~1.5 г/кг — удобно для трекинга, но это не отдельный пункт из листа назначений</div>
+    <div class="water-note" style="margin-top:0;margin-bottom:14px;"><span>📌</span> Список «Можно» — практическая расшифровка рекомендаций. Если сомневаетесь, ориентируйтесь на основной список исключений из протокола.</div>
     <div class="card">
         <div class="card-header" style="cursor:default;"><span class="card-icon">✅</span><span class="card-title">Можно</span></div>
         <div class="card-body" id="foodYes"></div>
@@ -482,6 +506,8 @@
 
 <!-- TAB: Прогресс -->
 <div class="tab" id="t-prog">
+    <div id="progNextAction"></div>
+
     <!-- Course Ring -->
     <div id="courseStartInfo"></div>
     <div class="ring-wrap">
@@ -515,14 +541,26 @@
     </div>
 
     <!-- Timeline -->
-    <div class="sec-title">📋 Ближайшие действия</div>
+    <div class="sec-title">📋 Ориентиры / мой план</div>
+    <div class="water-note" style="margin-top:-2px;margin-bottom:14px;"><span>🧭</span> Здесь рабочие ориентиры. Они считаются от даты старта курса и от фактической даты Небидо, если вы её отметили.</div>
     <div class="proc-card">
         <div id="timeline"></div>
     </div>
+
+    <div id="progCourseControls" style="margin-top:14px;"></div>
 </div>
 
 <!-- TAB: Инфо -->
 <div class="tab" id="t-info">
+    <div class="card">
+        <div class="card-header" style="cursor:default;"><span class="card-icon">🗂️</span><span class="card-title">Как читать этот трекер</span></div>
+        <div class="card-body">
+            <div class="food-line"><span class="f-dot f-yes">●</span>Препараты и процедуры — по письменному протоколу от 24.02.2026.</div>
+            <div class="food-line"><span class="f-dot f-yes">●</span>Блоки «Ориентиры / мой план» и отдельные пояснения в генетике — рабочие заметки по итогам разговора с врачами.</div>
+            <div class="food-line"><span class="f-dot f-yes">●</span>Контроль общего тестостерона после Небидо — через 3 недели; дальше возможны дополнительные контроли по решению врача.</div>
+            <div class="food-line"><span class="f-dot f-yes">●</span>Омега-3 встроена в блоки дня: 2 капсулы утром, 1 днём, 2 вечером.</div>
+        </div>
+    </div>
     <div class="card">
         <div class="card-header" style="cursor:default;"><span class="card-icon">🧬</span><span class="card-title">Генетика</span></div>
         <div class="card-body" id="genetics"></div>
@@ -535,7 +573,7 @@
         <div class="card-header" style="cursor:default;"><span class="card-icon">📞</span><span class="card-title">Контакты</span></div>
         <div class="card-body" id="contacts"></div>
     </div>
-    <div class="footer">Клиника проф. Калиниченко · Бушуева А.О. · Фомин А.М.<br>Протокол от 24.02.2026 · v3.0</div>
+    <div class="footer">Клиника проф. Калиниченко · Бушуева А.О. · Фомин А.М.<br>Протокол от 24.02.2026 · v3.3.1</div>
 </div>
 
 <!-- Bottom Nav -->
@@ -551,111 +589,341 @@
 // ===== DATA =====
 const BLOCKS = [
     { id:'morning', icon:'🌅', title:'Утро · завтрак', pills:[
-        { emoji:'☀️', name:'Витамин D 10 000 МЕ', dose:'1 капс.', tag:'постоянно', perm:true },
+        { emoji:'☀️', name:'Витамин D 10 000 МЕ', dose:'1 капс.', perm:true },
         { emoji:'💛', name:'Альфа D3 1 мкг', dose:'1 капс.', tag:'2 мес.' },
         { emoji:'🦴', name:'Кальциум триактив', dose:'1 капс.', tag:'≥2 мес.', isNew:true },
         { emoji:'💚', name:'Фолацин 5 мг', dose:'1 табл.', tag:'2 мес.' },
+        { emoji:'🟠', name:'Омега-3', dose:'2 капс. (1800 мг)', perm:true },
     ]},
     { id:'day', icon:'☀️', title:'День', pills:[
         { emoji:'💙', name:'Магний B6 форте', dose:'1 табл.', tag:'2 мес.' },
         { emoji:'🟣', name:'B-комплекс Smart Life', dose:'½ пипетки', tag:'2 мес.' },
-        { emoji:'⚡', name:'Магний B6 форте', dose:'доп. прием при стрессе', tag:'по ситуации', hint:true },
+        { emoji:'🟠', name:'Омега-3', dose:'1 капс. (900 мг)', perm:true },
+        { emoji:'⚡', name:'Магний B6 форте', dose:'доп. приём при стрессе', tag:'по ситуации', hint:true },
     ]},
     { id:'evening', icon:'🌙', title:'Вечер · перед сном', pills:[
-        { emoji:'🦴', name:'Кальциум триактив', dose:'1 капс. (2-й прием)', tag:'≥2 мес.', isNew:true },
+        { emoji:'🦴', name:'Кальциум триактив', dose:'1 капс. (2-й приём)', tag:'≥2 мес.', isNew:true },
         { emoji:'💙', name:'Магний B6 форте', dose:'1 табл. на ночь', tag:'2 мес.' },
         { emoji:'🔴', name:'Утрожестан 100 мг', dose:'1 капс.', tag:'2 мес.' },
         { emoji:'🟡', name:'Аевит 100 000 МЕ', dose:'1 капс.', tag:'2 мес.' },
+        { emoji:'🟠', name:'Омега-3', dose:'2 капс. (1800 мг)', perm:true },
     ]},
 ];
 
-const LABS_B = ['ЛГ (лютеинизирующий гормон)','ФСГ (фолликулостимулирующий гормон)','ГСПГ (глобулин, связ. половые гормоны)','Общий тестостерон'];
+const LABS_B = [
+    'ЛГ (лютеинизирующий гормон)',
+    'ФСГ (фолликулостимулирующий гормон)',
+    'ГСПГ (глобулин, связ. половые гормоны)',
+    'Общий тестостерон'
+];
 const LABS_A = ['Общий тестостерон (через 3 нед. после укола)'];
-const FOOD_Y = ['Яйца в любом виде','Кисломолочка: сметана, творог, сыр, йогурт без добавок, кефир, ряженка','Рыба любая, включая жирные сорта','Мясо любое в любом виде','Морепродукты любые','Овощи (кроме крахмалистых: картофель, кукуруза)','Орехи — до 50 г/сутки','Зелёные яблоки, киви'];
-const FOOD_N = ['Сахар, крупы (овсянка, гречка), хлеб, макароны','Хлебобулочные и кондитерские изделия','Молоко (кисломолочка — можно!)','Колбасы, сосиски, сардельки','Сладкие напитки, натуральные соки','Сладкие фрукты, сухофрукты, семечки','Копчёная, вяленая, солёная рыба, сельдь'];
-const TGT = [{i:'📏',l:'Окружность талии',v:'< 94 см'},{i:'💧',l:'Вода',v:'минимум 2.5 л/сут'},{i:'🚶',l:'Шаги',v:'≥ 10 000/день'},{i:'🌳',l:'Прогулка',v:'≥ 30 мин'},{i:'🔥',l:'Безуглеводный режим',v:'~1.5 мес.'}];
-const GEN = [{g:'ГСПГ S/S 7/8',d:'Сниженная биодоступность стероидных гормонов'},{g:'Ароматаза A/A',d:'Пониженная конвертация Т→Э (плюс)'},{g:'Эстроген рец. 1 C/C',d:'Повышенная чувствительность — следить на курсе'},{g:'КОМТ A/A',d:'Медленное восстановление после стресса'},{g:'Прогестерон рец. C/A',d:'Пониженная чувствительность → Утрожестан'},{g:'FADS1/FADS2',d:'Омега-3 постоянно (мутация)'},{g:'1α-гидроксилаза A/A',d:'Альфа Д3 возможно постоянно (мутация)'}];
-const DIAG = ['Ожирение (E66.0)','Недостаточность железа','Недостаточность витамина D','Возрастной андрогенный дефицит','Жировой гепатоз печени (стеатоз)'];
-const CONT = [{l:'Фомин А.М. (эндокринолог)',v:'+7 985 781-23-03',t:'79857812303'},{l:'Клиника',v:'+7 495 937-34-03',t:'74959373403'},{l:'Аптека клиники',v:'+7 926 968-55-22',t:'79269685522'}];
+const FOOD_Y = [
+    'Яйца в любом виде',
+    'Кисломолочка: сметана, творог, сыр, йогурт без добавок, кефир, ряженка',
+    'Рыба любая, включая жирные сорта',
+    'Мясо любое в любом виде',
+    'Морепродукты любые',
+    'Овощи (кроме крахмалистых: картофель, кукуруза)',
+    'Орехи — до 50 г/сутки',
+    'Зелёные яблоки, киви'
+];
+const FOOD_N = [
+    'Сахар, крупы, хлеб, макароны',
+    'Хлебобулочные и кондитерские изделия',
+    'Молоко (кисломолочка — можно!)',
+    'Колбасы, сосиски, сардельки',
+    'Сладкие напитки, натуральные соки',
+    'Сладкие фрукты, сухофрукты, семечки',
+    'Крахмалистые овощи: картофель, кукуруза'
+];
+const TGT = [
+    {i:'📏',l:'Окружность талии',v:'< 94 см'},
+    {i:'💧',l:'Вода',v:'минимум 2.5 л/сут'},
+    {i:'🚶',l:'Шаги',v:'≥ 10 000/день'},
+    {i:'🌳',l:'Прогулка',v:'≥ 30 мин'},
+    {i:'🔥',l:'Безуглеводный режим',v:'~1.5 мес.'}
+];
+const GEN = [
+    {g:'ГСПГ S/S 7/8',d:'Сниженная биодоступность стероидных гормонов'},
+    {g:'Ароматаза A/A',d:'Пониженная конвертация Т→Э (плюс)'},
+    {g:'Эстроген рец. 1 C/C',d:'Повышенная чувствительность — следить на курсе'},
+    {g:'КОМТ A/A',d:'Медленное восстановление после стресса'},
+    {g:'Прогестероновый рец. C/A',d:'Пониженная чувствительность → Утрожестан'},
+    {g:'FADS1 / FADS2',d:'Омега-3 — длительная поддержка; в устном комментарии сказано не прекращать'},
+    {g:'1α-гидроксилаза A/A',d:'Альфа D3 назначен на 2 мес.; в устном комментарии — возможно дольше / постоянно'}
+];
+const DIAG = [
+    'Ожирение (E66.0)',
+    'Недостаточность железа',
+    'Недостаточность витамина D',
+    'Возрастной андрогенный дефицит',
+    'Стеатоз / жировой гепатоз печени (по УЗИ, со слов врача)'
+];
+const CONT = [
+    {l:'Фомин А.М. (эндокринолог)',v:'+7 985 781-23-03',t:'79857812303'},
+    {l:'Клиника',v:'+7 495 937-34-03',t:'74959373403'},
+    {l:'Аптека клиники',v:'+7 926 968-55-22',t:'79269685522'}
+];
 
-const START='2026-02-24', DAYS=60, OMEGA=4, WATER=10;
-const MO=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
-const MON=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+const STORAGE_KEY = 'ht-v2';
+const DAYS = 60, WATER = 10;
+const MO = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
 
-let cur=new Date(), D={};
+let cur = new Date();
+let D = {};
 
-function dk(d){if(typeof d==='string')return d;return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
-function today(){return dk(new Date());}
-function load(){try{const r=localStorage.getItem('ht-v2');if(r)D=JSON.parse(r);}catch(e){}if(!D.days)D.days={};if(!D.drips)D.drips=0;if(!D.neuro)D.neuro=0;if(!D.labs)D.labs={};if(!D.nebido)D.nebido=false;if(!D.theme)D.theme='light';if(!D.courseStart)D.courseStart=null;}
-function startCourse(){if(D.courseStart&&!confirm('Курс уже запущен ('+formatDMY(D.courseStart)+'). Сбросить и начать заново?'))return;D.courseStart=dk(new Date());save();render();renderProgress();}
-function resetCourse(){if(!confirm('Точно сбросить дату старта?'))return;D.courseStart=null;save();render();renderProgress();}
-function formatDMY(s){const d=new Date(s+'T00:00:00');return d.getDate()+' '+MO[d.getMonth()]+' '+d.getFullYear();}
-function save(){try{localStorage.setItem('ht-v2',JSON.stringify(D));}catch(e){}}
-function gd(k){if(!D.days[k])D.days[k]={blocks:{},omega:0,water:0};return D.days[k];}
+function dk(d){
+    if(typeof d === 'string') return d;
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function parseDate(s){ return new Date(s + 'T00:00:00'); }
+function addDays(s, n){ const d = parseDate(s); d.setDate(d.getDate()+n); return dk(d); }
+function fmtDMY(s){ const d = parseDate(s); return d.getDate() + ' ' + MO[d.getMonth()] + ' ' + d.getFullYear(); }
+function fmtDM(s){ const d = parseDate(s); return d.getDate() + ' ' + MO[d.getMonth()]; }
+function isProgOpen(){ return document.getElementById('t-prog').classList.contains('on'); }
+function lastOf(arr){ return arr && arr.length ? arr[arr.length-1] : null; }
+function nextWindowText(dateStr, from=7, to=10){ return 'окно ' + fmtDM(addDays(dateStr, from)) + ' – ' + fmtDM(addDays(dateStr, to)); }
 
-// Theme
-function applyTheme(){document.documentElement.setAttribute('data-theme',D.theme);document.getElementById('themeBtn').textContent=D.theme==='dark'?'☀️':'🌙';}
-function toggleTheme(){D.theme=D.theme==='dark'?'light':'dark';applyTheme();save();}
+function todayKey(){ const t = new Date(); t.setHours(0,0,0,0); return dk(t); }
+function clampToTodayOrLater(dateStr){ return (!dateStr || dateStr < todayKey()) ? todayKey() : dateStr; }
+function clearCourseData(){
+    const theme = D.theme;
+    D = defaultData();
+    D.theme = theme;
+}
+function getCourseControlsHTML(){
+    const selected = dk(cur);
+    if(!D.courseStart){
+        return `<div class="course-controls-box"><div class="course-controls-top"><div class="course-controls-meta">Курс ещё не запущен · старт будет с выбранной даты <b style="color:var(--text)">${fmtDMY(selected)}</b></div><div class="course-controls-actions"><button class="mini-btn primary" onclick="startCourse()">🚀 Старт курса</button></div></div></div>`;
+    }
+    return `<div class="course-controls-box"><div class="course-controls-top"><div class="course-controls-meta">Старт курса: <b style="color:var(--text)">${fmtDMY(D.courseStart)}</b> · выбрана дата <b style="color:var(--text)">${fmtDMY(selected)}</b></div><div class="course-controls-actions"><button class="mini-btn" onclick="startCourse()">↻ Старт заново с выбранной даты</button><button class="mini-btn warn" onclick="resetCourse()">⟲ Сброс курса</button></div></div></div>`;
+}
+function renderCourseControls(){
+    const html = getCourseControlsHTML();
+    const pg = document.getElementById('progCourseControls');
+    if(pg) pg.innerHTML = html;
+}
+function getPlanEvents(){
+    const events = [];
+    if(!D.courseStart) return events;
+    const labsBeforeDone = groupDone('b', LABS_B.length);
+    const labsBeforeDate = groupDate('b', LABS_B.length);
+    const labsAfterDone = groupDone('a', LABS_A.length);
+    const labsAfterDate = groupDate('a', LABS_A.length);
+    if(labsBeforeDone) events.push({name:'Исходные анализы до Небидо сданы', date:labsBeforeDate, detail:'ЛГ, ФСГ, ГСПГ, общий тестостерон', kind:'labs-before-done', done:true});
+    else events.push({name:'Сдать исходные анализы до Небидо', date:clampToTodayOrLater(D.courseStart), detail:'ЛГ, ФСГ, ГСПГ, общий тестостерон', kind:'labs-before', done:false});
 
-// Date
-function chgDate(dir){cur.setDate(cur.getDate()+dir);render();}
+    if(D.procDates.nebido) {
+        events.push({name:'Укол Небидо', date:D.procDates.nebido, detail:'фактическая отметка', kind:'nebido-done', done:true});
+        if(labsAfterDone) events.push({name:'Контроль общего тестостерона сдан', date:labsAfterDate, detail:'результат показать врачу', kind:'labs-after-done', done:true});
+        else events.push({name:'Контроль общего тестостерона', date:addDays(D.procDates.nebido,21), detail:'через 3 недели после Небидо', kind:'labs-after', done:false});
+    } else if(labsBeforeDone) {
+        events.push({name:'Укол Небидо', date:clampToTodayOrLater(labsBeforeDate), detail:'после исходных анализов, по записи', kind:'nebido', done:false});
+    }
 
-// Tabs
-function go(t,btn){
+    if(D.drips < 5){
+        if(D.procDates.drips.length){
+            const last = lastOf(D.procDates.drips);
+            events.push({name:'Следующая капельница #' + (D.drips+1), date:addDays(last,7), detail:nextWindowText(last,7,10), kind:'drip', done:false});
+        } else {
+            events.push({name:'Начать курс капельниц', date:clampToTodayOrLater(D.courseStart), detail:'5 капельниц, интервал 7–10 дней', kind:'drip-start', done:false});
+        }
+    } else if(D.procDates.drips.length) {
+        events.push({name:'Все 5 капельниц пройдены', date:lastOf(D.procDates.drips), detail:'курс инфузий завершён', kind:'drip-done', done:true});
+    }
+
+    if(D.neuro < 14){
+        if(D.procDates.neuro.length){
+            const last = lastOf(D.procDates.neuro);
+            const gap = D.neuro < 10 ? 3 : 7;
+            const stage = D.neuro < 10 ? 'этап 1: 2 раза в неделю' : 'этап 2: 1 раз в неделю';
+            events.push({name:'Следующий укол Нейромультивита #' + (D.neuro+1), date:addDays(last,gap), detail:stage, kind:'neuro', done:false});
+        } else {
+            events.push({name:'Начать уколы Нейромультивита', date:clampToTodayOrLater(D.courseStart), detail:'10 уколов по 2 р/нед, затем 4 по 1 р/нед', kind:'neuro-start', done:false});
+        }
+    } else if(D.procDates.neuro.length) {
+        events.push({name:'Все 14 уколов Нейромультивита пройдены', date:lastOf(D.procDates.neuro), detail:'курс завершён', kind:'neuro-done', done:true});
+    }
+
+    events.push({name:'Оценка безуглеводного перехода', date:addDays(D.courseStart,45), detail:'~1.5 месяца от старта', kind:'carbs', done:false, soft:true});
+    events.push({name:'Контрольный визит / пересборка плана', date:addDays(D.courseStart,60), detail:'рабочий ориентир, не дословный пункт протокола', kind:'visit', done:false, soft:true});
+    events.sort((a,b)=> a.date.localeCompare(b.date));
+    return events;
+}
+function getNextAction(){
+    const events = getPlanEvents().filter(e => !e.done && !e.soft);
+    return events.length ? events[0] : null;
+}
+function renderNextAction(){
+    const next = getNextAction();
+    const targets = ['procNextAction','progNextAction'];
+    const setEmpty = html => targets.forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML = html; });
+    if(!D.courseStart){
+        setEmpty('');
+        return;
+    }
+    if(!next){
+        setEmpty(`<div class="next-card done"><div class="next-kicker">Следующее действие</div><div class="next-name">Обязательные шаги по программе закрыты</div><div class="next-meta">Остаются контрольные ориентиры и повседневный режим.</div></div>`);
+        return;
+    }
+    const info = eventInfo(next.date, next.name, next.detail, false);
+    const extra = info.diff < 0 ? `Просрочено на ${Math.abs(info.diff)} дн.` : (info.diff === 0 ? 'Нужно сделать сегодня' : `Осталось ${info.diff} дн.`);
+    const html = `<div class="next-card ${info.dot==='overdue'?'overdue':''}"><div class="next-kicker">Следующее обязательное действие</div><div class="next-name">${next.name}</div><div class="next-meta">📅 ${fmtDMY(next.date)} · ${extra}<br>${next.detail || ''}</div><div class="next-actions"><a href="${info.cal}" target="_blank" class="mini-btn primary">📅 В календарь</a></div></div>`;
+    setEmpty(html);
+}
+
+function defaultData(){
+    return {
+        days: {},
+        drips: 0,
+        neuro: 0,
+        labs: {},
+        labDates: {},
+        nebido: false,
+        theme: 'light',
+        courseStart: null,
+        procDates: { drips: [], neuro: [], nebido: null }
+    };
+}
+
+function normalize(){
+    const base = defaultData();
+    D = Object.assign(base, D || {});
+    D.days = D.days || {};
+    D.labs = D.labs || {};
+    D.labDates = D.labDates || {};
+    D.procDates = D.procDates || {};
+    if(!Array.isArray(D.procDates.drips)) D.procDates.drips = [];
+    if(!Array.isArray(D.procDates.neuro)) D.procDates.neuro = [];
+    if(typeof D.procDates.nebido === 'undefined') D.procDates.nebido = null;
+    D.drips = Math.max(0, Math.min(5, Number(D.drips) || 0));
+    D.neuro = Math.max(0, Math.min(14, Number(D.neuro) || 0));
+    if(!D.theme) D.theme = 'light';
+}
+
+function load(){
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        D = raw ? JSON.parse(raw) : defaultData();
+    } catch(e){
+        D = defaultData();
+    }
+    normalize();
+}
+
+function save(){
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(D)); } catch(e){}
+}
+
+function gd(k){
+    if(!D.days[k]) D.days[k] = { blocks:{}, water:0 };
+    return D.days[k];
+}
+
+function startCourse(){
+    const selected = dk(cur);
+    if(D.courseStart && !confirm('Запустить курс заново с даты ' + fmtDMY(selected) + '? Это сбросит все отметки и прогресс.')) return;
+    if(!D.courseStart && !confirm('Запустить курс с даты ' + fmtDMY(selected) + '?')) return;
+    clearCourseData();
+    D.courseStart = selected;
+    save();
+    render();
+}
+
+function resetCourse(){
+    if(!confirm('Полностью сбросить курс и все отметки?')) return;
+    clearCourseData();
+    save();
+    render();
+}
+
+function applyTheme(){
+    document.documentElement.setAttribute('data-theme', D.theme);
+    document.getElementById('themeBtn').textContent = D.theme === 'dark' ? '☀️' : '🌙';
+}
+function toggleTheme(){ D.theme = D.theme === 'dark' ? 'light' : 'dark'; applyTheme(); save(); }
+
+function chgDate(dir){ cur.setDate(cur.getDate()+dir); render(); }
+
+function go(t, btn){
     document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
     document.getElementById('t-'+t).classList.add('on');
     document.querySelectorAll('.bnav button').forEach(b=>b.classList.remove('on'));
     btn.classList.add('on');
-    if(t==='prog')renderProgress();
+    if(t==='prog') renderProgress();
 }
 
-// Toggle block
-function togBlock(k,bid){const d=gd(k);d.blocks[bid]=!d.blocks[bid];save();render();}
+function togBlock(k,bid){ const d=gd(k); d.blocks[bid]=!d.blocks[bid]; save(); render(); }
+function setWater(k,n){ const d=gd(k); d.water = d.water===n ? n-1 : n; save(); render(); }
 
-// Omega
-function setOmega(k,n){const d=gd(k);d.omega=d.omega===n?n-1:n;save();render();}
-
-// Water
-function setWater(k,n){const d=gd(k);d.water=d.water===n?n-1:n;save();render();}
-
-// Procedures
 function chgProc(type,dir){
-    if(type==='drips')D.drips=Math.max(0,Math.min(5,D.drips+dir));
-    else D.neuro=Math.max(0,Math.min(14,D.neuro+dir));
-    save();renderProc();
+    const max = type==='drips' ? 5 : 14;
+    const arr = D.procDates[type];
+    if(dir>0 && D[type] < max){
+        D[type] += 1;
+        arr.push(dk(cur));
+    } else if(dir<0 && D[type] > 0){
+        D[type] -= 1;
+        arr.pop();
+    }
+    save();
+    render();
 }
 
-// Labs
-function togLab(id){D.labs[id]=!D.labs[id];save();renderLabs();}
-function togNebido(){D.nebido=!D.nebido;save();renderLabs();}
-
-// ===== RENDER =====
-function render(){
-    const k=dk(cur);
-    document.getElementById('curDate').textContent=cur.getDate()+' '+MO[cur.getMonth()];
-
-    // Course info
-    const ci=document.getElementById('courseInfo');
-    if(!D.courseStart){
-        ci.innerHTML='<button onclick="startCourse()" style="background:var(--accent);color:#fff;border:none;padding:8px 20px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;margin-top:4px;">🚀 Старт курса</button>';
-    } else {
-        const startD=new Date(D.courseStart+'T00:00:00');
-        const end=new Date(startD);end.setDate(end.getDate()+DAYS);
-        const now=new Date();now.setHours(0,0,0,0);
-        const diff=Math.ceil((end-now)/864e5);
-        const dayNum=Math.floor((now-startD)/864e5)+1;
-        ci.innerHTML=diff>0?
-            '<span>День <b>'+dayNum+'</b> из '+DAYS+' · осталось '+diff+' дн.</span>':
-            '<span>Курс завершён 🎉</span>';
+function togLab(id){
+    const willSet = !D.labs[id];
+    if(willSet && id.startsWith('a')){
+        if(!D.procDates.nebido){
+            alert('Сначала отметьте укол Небидо.');
+            return;
+        }
+        const rec = addDays(D.procDates.nebido, 21);
+        const curKey = dk(cur);
+        if(curKey < rec && !confirm('Рекомендованная дата этого анализа — ' + fmtDMY(rec) + '. До неё ещё рано. Всё равно отметить?')) return;
     }
+    D.labs[id] = willSet;
+    if(D.labs[id]) D.labDates[id] = dk(cur);
+    else delete D.labDates[id];
+    save();
+    render();
+}
 
-    const d=gd(k);
+function togNebido(){
+    const willSet = !D.nebido;
+    if(willSet && !groupDone('b', LABS_B.length) && !confirm('Исходные анализы до Небидо отмечены не полностью. Всё равно отметить укол?')) return;
+    D.nebido = willSet;
+    D.procDates.nebido = D.nebido ? dk(cur) : null;
+    if(!willSet){
+        Object.keys(D.labs).filter(k=>k.startsWith('a')).forEach(k=>{ delete D.labs[k]; delete D.labDates[k]; });
+    }
+    save();
+    render();
+}
 
-    // Pill blocks
-    let html='';
+function groupDone(prefix, len){
+    for(let i=0;i<len;i++) if(!D.labs[prefix+i]) return false;
+    return true;
+}
+function groupDate(prefix, len){
+    if(!groupDone(prefix, len)) return null;
+    let latest = null;
+    for(let i=0;i<len;i++){
+        const dt = D.labDates[prefix+i];
+        if(dt && (!latest || dt > latest)) latest = dt;
+    }
+    return latest;
+}
+
+function render(){
+    const k = dk(cur);
+    document.getElementById('curDate').textContent = cur.getDate() + ' ' + MO[cur.getMonth()];
+    renderCourseControls();
+
+    const d = gd(k);
+    let html = '';
     BLOCKS.forEach(b=>{
-        const done=!!d.blocks[b.id];
-        html+=`<div class="card ${done?'done':''}" onclick="togBlock('${k}','${b.id}')">
+        const done = !!d.blocks[b.id];
+        html += `<div class="card ${done?'done':''}" onclick="togBlock('${k}','${b.id}')">
             <div class="card-header">
                 <div class="card-check">${done?'✓':''}</div>
                 <span class="card-icon">${b.icon}</span>
@@ -666,156 +934,198 @@ function render(){
                 <span>${p.name} — ${p.dose}</span>
                 ${p.isNew?'<span class="pill-tag new">new</span>':''}
                 ${p.perm?'<span class="pill-tag">постоянно</span>':''}
+                ${p.tag && !p.perm && !p.hint ? `<span class="pill-tag">${p.tag}</span>` : ''}
                 ${p.hint?'<span class="pill-tag" style="background:var(--water-bg);color:var(--water);">доп.</span>':''}
             </div>`).join('')}</div>
         </div>`;
     });
-    document.getElementById('pillBlocks').innerHTML=html;
+    document.getElementById('pillBlocks').innerHTML = html;
 
-    // Omega
-    let ob='';
-    for(let i=1;i<=OMEGA;i++)ob+=`<button class="omega-btn ${i<=d.omega?'on':''}" onclick="event.stopPropagation();setOmega('${k}',${i})">${i}</button>`;
-    document.getElementById('omegaBtns').innerHTML=ob;
+    let wh = '';
+    for(let i=1;i<=WATER;i++) wh += `<button class="water-btn ${i<=d.water?'on':''}" onclick="setWater('${k}',${i})">💧</button>`;
+    document.getElementById('wGrid').innerHTML = wh;
+    document.getElementById('wCnt').textContent = d.water;
 
-    // Water
-    let wh='';
-    for(let i=1;i<=WATER;i++)wh+=`<button class="water-btn ${i<=d.water?'on':''}" onclick="setWater('${k}',${i})">💧</button>`;
-    document.getElementById('wGrid').innerHTML=wh;
-    document.getElementById('wCnt').textContent=d.water;
+    const blocksDone = BLOCKS.filter(b=>d.blocks[b.id]).length;
+    const done2 = blocksDone;
+    const total = BLOCKS.length;
+    const pct = Math.round(done2/total*100);
+    const bar = document.getElementById('progBar');
+    bar.style.width = pct + '%';
+    bar.textContent = pct + '%';
 
-    // Progress
-    const blocksDone=BLOCKS.filter(b=>d.blocks[b.id]).length;
-    const total=BLOCKS.length+OMEGA;
-    const done2=blocksDone+d.omega;
-    const pct=Math.round(done2/total*100);
-    const bar=document.getElementById('progBar');
-    bar.style.width=pct+'%';bar.textContent=pct+'%';
-
-    renderProc();renderLabs();
+    renderProc();
+    renderLabs();
+    renderProgress();
 }
 
 function renderProc(){
-    document.getElementById('dripCnt').textContent=D.drips+'/5';
-    document.getElementById('dripBar').style.width=(D.drips/5*100)+'%';
-    document.getElementById('neuroCnt').textContent=D.neuro+'/14';
-    document.getElementById('neuroBar').style.width=(D.neuro/14*100)+'%';
+    document.getElementById('dripCnt').textContent = D.drips + '/5';
+    document.getElementById('dripBar').style.width = (D.drips/5*100) + '%';
+    document.getElementById('neuroCnt').textContent = D.neuro + '/14';
+    document.getElementById('neuroBar').style.width = (D.neuro/14*100) + '%';
+
+    const lastDrip = lastOf(D.procDates.drips);
+    const dripSched = document.getElementById('dripSched');
+    if(lastDrip && D.drips < 5) dripSched.textContent = 'Последняя отмечена: ' + fmtDMY(lastDrip) + ' · следующая обычно через 7–10 дней';
+    else if(lastDrip && D.drips >= 5) dripSched.textContent = 'Курс завершён · последняя отмечена ' + fmtDMY(lastDrip);
+    else dripSched.textContent = 'Всего 5 капельниц · интервал 7–10 дней';
+
+    const lastNeuro = lastOf(D.procDates.neuro);
+    const neuroSched = document.getElementById('neuroSched');
+    if(lastNeuro && D.neuro < 10) neuroSched.textContent = 'Этап 1 · 2 раза в неделю · последняя отметка ' + fmtDMY(lastNeuro);
+    else if(lastNeuro && D.neuro < 14) neuroSched.textContent = 'Этап 2 · 1 раз в неделю · последняя отметка ' + fmtDMY(lastNeuro);
+    else if(lastNeuro && D.neuro >= 14) neuroSched.textContent = 'Курс завершён · последняя отметка ' + fmtDMY(lastNeuro);
+    else neuroSched.textContent = '2 р/нед × 10, потом 1 р/нед × 4';
 }
 
 function renderLabs(){
-    document.getElementById('labsBefore').innerHTML=LABS_B.map((l,i)=>{
-        const done=D.labs['b'+i];
-        return `<div class="lab-row ${done?'done':''}" onclick="togLab('b${i}')"><div class="lab-check">${done?'✓':''}</div><span class="lab-text">${l}</span></div>`;
+    document.getElementById('labsBefore').innerHTML = LABS_B.map((l,i)=>{
+        const done = D.labs['b'+i];
+        const dt = D.labDates['b'+i];
+        return `<div class="lab-row ${done?'done':''}" onclick="togLab('b${i}')">
+            <div class="lab-check">${done?'✓':''}</div>
+            <span class="lab-text">${l}${done && dt ? ' · ' + fmtDM(dt) : ''}</span>
+        </div>`;
     }).join('');
-    const nd=D.nebido;
-    document.getElementById('nebidoRow').innerHTML=`<div class="lab-row ${nd?'done':''}" onclick="togNebido()"><div class="lab-check">${nd?'✓':''}</div><span class="lab-text">💉 Небидо 1000 мг — укол сделан</span></div>`;
-    document.getElementById('labsAfter').innerHTML=LABS_A.map((l,i)=>{
-        const done=D.labs['a'+i];
-        return `<div class="lab-row ${done?'done':''}" onclick="togLab('a${i}')"><div class="lab-check">${done?'✓':''}</div><span class="lab-text">${l}</span></div>`;
+
+    const nd = D.nebido;
+    const ndDate = D.procDates.nebido;
+    const labsBeforeDone = groupDone('b', LABS_B.length);
+    const nebidoHint = nd && ndDate ? 'отмечен ' + fmtDM(ndDate) : 'сделан';
+    document.getElementById('nebidoRow').innerHTML = `<div class="lab-row ${nd?'done':''}" onclick="togNebido()">
+        <div class="lab-check">${nd?'✓':''}</div>
+        <span class="lab-text">💉 Небидо 1000 мг — укол ${nebidoHint}${!nd && !labsBeforeDone ? ' · обычно после исходных анализов' : ''}</span>
+    </div>`;
+
+    const recAfter = D.procDates.nebido ? addDays(D.procDates.nebido, 21) : null;
+    document.getElementById('labsAfter').innerHTML = LABS_A.map((l,i)=>{
+        const done = D.labs['a'+i];
+        const dt = D.labDates['a'+i];
+        const blocked = !D.procDates.nebido;
+        const suffix = done && dt ? ' · ' + fmtDM(dt) : (recAfter ? ' · рекомендовано ' + fmtDM(recAfter) : '');
+        return `<div class="lab-row ${done?'done':''} ${blocked?'blocked':''}" onclick="togLab('a${i}')">
+            <div class="lab-check">${done?'✓':''}</div>
+            <span class="lab-text">${l}${suffix}</span>
+        </div>`;
     }).join('');
 }
 
 function renderStatic(){
-    document.getElementById('foodYes').innerHTML=FOOD_Y.map(f=>`<div class="food-line"><span class="f-dot f-yes">●</span>${f}</div>`).join('');
-    document.getElementById('foodNo').innerHTML=FOOD_N.map(f=>`<div class="food-line"><span class="f-dot f-no">●</span>${f}</div>`).join('');
-    document.getElementById('targets').innerHTML=TGT.map(t=>`<div class="target-row"><span class="t-icon">${t.i}</span><span class="t-label">${t.l}</span><span class="t-val">${t.v}</span></div>`).join('');
-    document.getElementById('genetics').innerHTML=GEN.map(g=>`<div class="gene-row"><div class="gene-name">${g.g}</div><div class="gene-desc">${g.d}</div></div>`).join('');
-    document.getElementById('diagnoses').innerHTML=DIAG.map(d=>`<div class="food-line"><span class="f-dot f-yes">·</span>${d}</div>`).join('');
-    document.getElementById('contacts').innerHTML=CONT.map(c=>`<div class="contact-row"><span class="c-label">${c.l}</span><span class="c-val"><a href="tel:${c.t}">${c.v}</a></span></div>`).join('');
+    document.getElementById('foodYes').innerHTML = FOOD_Y.map(f=>`<div class="food-line"><span class="f-dot f-yes">●</span>${f}</div>`).join('');
+    document.getElementById('foodNo').innerHTML = FOOD_N.map(f=>`<div class="food-line"><span class="f-dot f-no">●</span>${f}</div>`).join('');
+    document.getElementById('targets').innerHTML = TGT.map(t=>`<div class="target-row"><span class="t-icon">${t.i}</span><span class="t-label">${t.l}</span><span class="t-val">${t.v}</span></div>`).join('');
+    document.getElementById('genetics').innerHTML = GEN.map(g=>`<div class="gene-row"><div class="gene-name">${g.g}</div><div class="gene-desc">${g.d}</div></div>`).join('');
+    document.getElementById('diagnoses').innerHTML = DIAG.map(d=>`<div class="food-line"><span class="f-dot f-yes">·</span>${d}</div>`).join('');
+    document.getElementById('contacts').innerHTML = CONT.map(c=>`<div class="contact-row"><span class="c-label">${c.l}</span><span class="c-val"><a href="tel:${c.t}">${c.v}</a></span></div>`).join('');
 }
 
-// Progress Dashboard
+function eventInfo(dateStr, title, details, isDone=false){
+    const evDate = parseDate(dateStr);
+    const todayD = new Date(); todayD.setHours(0,0,0,0);
+    const diff = Math.round((evDate - todayD)/864e5);
+    let dot='future', label='';
+    if(isDone){
+        dot='past';
+        label = diff === 0 ? 'Сегодня!' : fmtDM(dateStr);
+    } else if(diff < 0){
+        dot='overdue';
+        label='Просрочено на ' + Math.abs(diff) + ' дн.';
+    } else if(diff === 0){
+        dot='soon';
+        label='Сегодня!';
+    } else if(diff <= 7){
+        dot='soon';
+        label='Через ' + diff + ' дн.';
+    } else label = fmtDM(dateStr);
+    const y = evDate.getFullYear(), mo = String(evDate.getMonth()+1).padStart(2,'0'), dy = String(evDate.getDate()).padStart(2,'0');
+    const cal = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent('🏥 ' + (title || 'Событие')) + '&dates=' + y+mo+dy + '/' + y+mo+dy + '&details=' + encodeURIComponent(details || 'Трекер здоровья');
+    return {dot, label, cal, diff};
+}
+
 function renderProgress(){
+    renderCourseControls();
+    renderNextAction();
     if(!D.courseStart){
-        document.getElementById('courseStartInfo').innerHTML='';
-        document.getElementById('ringDay').textContent='—';
-        document.getElementById('ringCircle').style.strokeDashoffset=490;
-        document.getElementById('ringSub').textContent='Нажми «Старт курса» вверху';
-        document.getElementById('streakNum').textContent='0';
-        document.getElementById('streakSub').textContent='Начни серию сегодня!';
-        document.getElementById('statsGrid').innerHTML='';
-        document.getElementById('milestones').innerHTML='<div style="padding:16px;text-align:center;color:var(--muted);font-size:14px;">Запусти курс, чтобы увидеть вехи</div>';
-        document.getElementById('timeline').innerHTML='<div style="padding:16px;text-align:center;color:var(--muted);font-size:14px;">Запусти курс, чтобы увидеть таймлайн</div>';
+        document.getElementById('courseStartInfo').innerHTML = '';
+        document.getElementById('ringDay').textContent = '—';
+        document.getElementById('ringCircle').style.strokeDashoffset = 490;
+        document.getElementById('ringSub').textContent = 'Нажми «Старт курса»';
+        document.getElementById('streakNum').textContent = '0';
+        document.getElementById('streakSub').textContent = 'Начни серию сегодня!';
+        document.getElementById('statsGrid').innerHTML = '';
+        document.getElementById('milestones').innerHTML = '<div style="padding:16px;text-align:center;color:var(--muted);font-size:14px;">Запусти курс, чтобы увидеть вехи</div>';
+        document.getElementById('timeline').innerHTML = '<div style="padding:16px;text-align:center;color:var(--muted);font-size:14px;">Запусти курс, чтобы увидеть ориентиры по дням</div>';
         return;
     }
 
-    const now=new Date();now.setHours(0,0,0,0);
-    const start=new Date(D.courseStart+'T00:00:00');
-    const endDate=new Date(start);endDate.setDate(endDate.getDate()+DAYS);
-    document.getElementById('courseStartInfo').innerHTML=`<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px;font-size:13px;color:var(--muted);">
-        <span>🚀 Старт: <b style="color:var(--text)">${formatDMY(D.courseStart)}</b></span>
-        <span>→</span>
-        <span>🏁 Финиш: <b style="color:var(--text)">${formatDMY(dk(endDate))}</b></span>
-    </div><div style="text-align:center;margin-bottom:14px;"><button onclick="resetCourse()" style="background:none;border:1px solid var(--border);color:var(--muted);padding:4px 12px;border-radius:8px;font-size:11px;cursor:pointer;">Сбросить дату старта</button></div>`;
-    const dayNum=Math.max(0,Math.floor((now-start)/864e5)+1);
-    const daysCapped=Math.min(dayNum,DAYS);
-    const remain=Math.max(0,DAYS-dayNum);
-    const pct=Math.min(100,Math.round(daysCapped/DAYS*100));
+    document.getElementById('courseStartInfo').innerHTML = '';
+    const now = new Date(); now.setHours(0,0,0,0);
+    const dayNum = Math.max(0, Math.floor((now - parseDate(D.courseStart))/864e5) + 1);
+    const daysCapped = Math.min(dayNum, DAYS);
+    const remain = Math.max(0, DAYS - dayNum);
+    const pct = Math.min(100, Math.round(daysCapped / DAYS * 100));
+    const endDate = addDays(D.courseStart, DAYS);
 
-    // Ring
-    document.getElementById('ringDay').textContent=daysCapped;
-    const circ=490;
-    document.getElementById('ringCircle').style.strokeDashoffset=circ-circ*(pct/100);
-    document.getElementById('ringSub').textContent=remain>0?'Осталось '+remain+' дней':'Курс завершён! 🎉';
+    document.getElementById('ringDay').textContent = daysCapped;
+    const circ = 490;
+    document.getElementById('ringCircle').style.strokeDashoffset = circ - circ*(pct/100);
+    document.getElementById('ringSub').textContent = remain>0 ? ('Осталось ' + remain + ' дней · финиш ' + fmtDM(endDate)) : 'Курс завершён! 🎉';
 
-    // Streak
-    let streak=0;
-    const d2=new Date();d2.setHours(0,0,0,0);
+    let streak = 0;
+    const d2 = new Date(); d2.setHours(0,0,0,0);
     for(let i=0;i<90;i++){
-        const k=dk(d2);
-        const dd=D.days[k];
+        const k = dk(d2), dd = D.days[k];
         if(dd){
-            const bd=BLOCKS.filter(b=>dd.blocks&&dd.blocks[b.id]).length;
-            const sc=bd+(dd.omega||0);
-            if(sc/(BLOCKS.length+OMEGA)>=0.7){streak++;} else if(i>0)break;
-        } else if(i>0)break;
+            const bd = BLOCKS.filter(b=>dd.blocks && dd.blocks[b.id]).length;
+            if(bd/BLOCKS.length >= 0.67) streak++;
+            else if(i>0) break;
+        } else if(i>0) break;
         d2.setDate(d2.getDate()-1);
     }
-    document.getElementById('streakNum').textContent=streak;
-    const msgs=['Начни серию сегодня!','Хорошее начало!','Так держать! 💪','Отлично идёшь!','Крутая серия!','Машина! 🚀','Невероятно! 🔥'];
-    document.getElementById('streakSub').textContent=msgs[Math.min(streak,msgs.length-1)];
+    document.getElementById('streakNum').textContent = streak;
+    const msgs = ['Начни серию сегодня!','Хорошее начало!','Так держать! 💪','Отлично идёшь!','Крутая серия!','Машина! 🚀','Невероятно! 🔥'];
+    document.getElementById('streakSub').textContent = msgs[Math.min(streak, msgs.length-1)];
 
-    // Stats
-    let totalDays=0,goodDays=0,totalWater=0;
+    let totalDays=0, goodDays=0;
     for(const k in D.days){
-        const dd=D.days[k];if(!dd)continue;
-        const bd=BLOCKS.filter(b=>dd.blocks&&dd.blocks[b.id]).length;
-        const sc=bd+(dd.omega||0);
-        totalDays++;totalWater+=dd.water||0;
-        if(sc/(BLOCKS.length+OMEGA)>=0.7)goodDays++;
+        const dd = D.days[k];
+        if(!dd) continue;
+        const bd = BLOCKS.filter(b=>dd.blocks && dd.blocks[b.id]).length;
+        totalDays++;
+        if(bd/BLOCKS.length >= 0.67) goodDays++;
     }
-    document.getElementById('statsGrid').innerHTML=`
+    document.getElementById('statsGrid').innerHTML = `
         <div class="stat-card"><div class="stat-val">${goodDays}</div><div class="stat-lbl">Дней выполнено</div></div>
-        <div class="stat-card"><div class="stat-val">${totalDays?Math.round(goodDays/totalDays*100):0}%</div><div class="stat-lbl">Успешность</div></div>
+        <div class="stat-card"><div class="stat-val">${totalDays ? Math.round(goodDays/totalDays*100) : 0}%</div><div class="stat-lbl">Успешность</div></div>
         <div class="stat-card"><div class="stat-val">${D.drips}/5</div><div class="stat-lbl">Капельниц</div></div>
         <div class="stat-card"><div class="stat-val">${D.neuro}/14</div><div class="stat-lbl">Уколов</div></div>
     `;
 
-    // Milestones
-    const ms=[
-        {id:'m_labs',icon:'🧪',name:'Анализы до Небидо сданы',desc:'ЛГ, ФСГ, ГСПГ, тестостерон'},
-        {id:'m_nebido',icon:'💉',name:'Укол Небидо сделан',desc:'Тестостерон 1000 мг'},
-        {id:'m_drip1',icon:'🩸',name:'Первая капельница',desc:'Тиоктацид + Венофер'},
+    const ms = [
+        {id:'m_labs',icon:'🧪',name:'Анализы до Небидо сданы',desc:'ЛГ, ФСГ, ГСПГ, общий тестостерон'},
+        {id:'m_nebido',icon:'💉',name:'Укол Небидо сделан',desc:'1000 мг / 4 мл'},
+        {id:'m_drip1',icon:'🩸',name:'Первая капельница',desc:'Тиоктацид + железо'},
         {id:'m_drip5',icon:'🩸',name:'Все 5 капельниц пройдены',desc:'Курс инфузий завершён'},
-        {id:'m_neuro10',icon:'💊',name:'10 уколов Нейромультивита',desc:'Переход на 1 р/нед'},
+        {id:'m_neuro10',icon:'💊',name:'10 уколов Нейромультивита',desc:'Переход на 1 раз в неделю'},
         {id:'m_neuro14',icon:'💊',name:'Все 14 уколов пройдены',desc:'Курс завершён'},
-        {id:'m_labs_after',icon:'🧪',name:'Контроль тестостерона сдан',desc:'Через 3 нед. после Небидо'},
-        {id:'m_carbs',icon:'🥩',name:'Безуглеводный переход (1.5 мес.)',desc:'Перепрошивка метаболизма'},
-        {id:'m_visit',icon:'👨‍⚕️',name:'Контрольный визит к врачу',desc:'Через ~2 месяца после начала'},
+        {id:'m_labs_after',icon:'🧪',name:'Контроль тестостерона сдан',desc:'Через 3 недели после Небидо'},
+        {id:'m_carbs',icon:'🥩',name:'Безуглеводный переход (~1.5 мес.)',desc:'Рабочая веха по питанию'},
+        {id:'m_visit',icon:'👨‍⚕️',name:'Контрольный визит',desc:'Рабочий ориентир около 2 месяцев'},
     ];
-    // Auto-check based on data
-    const autoCheck={
-        m_labs:LABS_B.every((_,i)=>D.labs['b'+i]),
-        m_nebido:D.nebido,
-        m_drip1:D.drips>=1,
-        m_drip5:D.drips>=5,
-        m_neuro10:D.neuro>=10,
-        m_neuro14:D.neuro>=14,
-        m_labs_after:LABS_A.every((_,i)=>D.labs['a'+i]),
-        m_carbs:dayNum>=45,
-        m_visit:dayNum>=60,
+    const autoCheck = {
+        m_labs: groupDone('b', LABS_B.length),
+        m_nebido: D.nebido,
+        m_drip1: D.drips >= 1,
+        m_drip5: D.drips >= 5,
+        m_neuro10: D.neuro >= 10,
+        m_neuro14: D.neuro >= 14,
+        m_labs_after: groupDone('a', LABS_A.length),
+        m_carbs: dayNum >= 45,
+        m_visit: dayNum >= 60,
     };
-    document.getElementById('milestones').innerHTML=ms.map(m=>{
-        const done=autoCheck[m.id]||(D.miles&&D.miles[m.id]);
+    document.getElementById('milestones').innerHTML = ms.map(m=>{
+        const done = autoCheck[m.id];
         return `<div class="achieve-item ${done?'done':''}">
             <div class="achieve-icon">${m.icon}</div>
             <div class="achieve-info">
@@ -826,50 +1136,25 @@ function renderProgress(){
         </div>`;
     }).join('');
 
-    // Timeline
-    const startD=new Date(D.courseStart+'T00:00:00');
-    const events=[
-        {name:'Сдать анализы: ЛГ, ФСГ, ГСПГ, тестостерон', offset:0, dur:'до укола Небидо'},
-        {name:'Начать безуглеводный переход', offset:0, dur:'на ~1.5 месяца'},
-        {name:'Укол Небидо', offset:7, dur:'после получения анализов'},
-        {name:'Капельница #1 (Тиоктацид+Венофер)', offset:7, dur:''},
-        {name:'Капельница #2', offset:14, dur:'через 7–10 дней'},
-        {name:'Капельница #3', offset:21, dur:''},
-        {name:'Капельница #4', offset:28, dur:''},
-        {name:'Капельница #5', offset:35, dur:'завершение курса инфузий'},
-        {name:'Контроль тестостерона (анализ)', offset:28, dur:'через 3 нед. после Небидо'},
-        {name:'Консультация Фомина А.М.', offset:42, dur:'обсудить результаты'},
-        {name:'Оценка безуглеводного перехода', offset:45, dur:'должно уйти чувство голода'},
-        {name:'Контрольный визит (Бушуева + Фомин)', offset:60, dur:'анализы + план дальше'},
-    ];
-
-    const todayD=new Date();todayD.setHours(0,0,0,0);
-    document.getElementById('timeline').innerHTML=events.map(e=>{
-        const evDate=new Date(startD);evDate.setDate(evDate.getDate()+e.offset);
-        const diff=Math.round((evDate-todayD)/864e5);
-        let dot='future',dateStr='';
-        if(diff<0){dot='past';dateStr='Прошло';}
-        else if(diff===0){dot='soon';dateStr='Сегодня!';}
-        else if(diff<=7){dot='soon';dateStr='Через '+diff+' дн.';}
-        else{dateStr=evDate.getDate()+' '+MO[evDate.getMonth()];}
-
-        // Generate Google Calendar link
-        const y=evDate.getFullYear(),mo=String(evDate.getMonth()+1).padStart(2,'0'),dy=String(evDate.getDate()).padStart(2,'0');
-        const calUrl='https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent('🏥 '+e.name)+'&dates='+y+mo+dy+'/'+y+mo+dy+'&details='+encodeURIComponent(e.dur||'Протокол здоровья');
-
+    const events = getPlanEvents();
+    document.getElementById('timeline').innerHTML = events.map(e=>{
+        const info = eventInfo(e.date, e.name, e.detail || 'Трекер здоровья', !!e.done);
         return `<div class="timeline-item">
-            <div class="tl-dot ${dot}"></div>
+            <div class="tl-dot ${info.dot}"></div>
             <div class="tl-info">
                 <div class="tl-name">${e.name}</div>
-                <div class="tl-date">${dateStr}${e.dur?' · '+e.dur:''}</div>
-                ${diff>=0?`<a href="${calUrl}" target="_blank" class="tl-cal-btn">📅 В календарь</a>`:''}
+                <div class="tl-date">${info.label}${e.detail ? ' · ' + e.detail : ''}</div>
+                <a href="${info.cal}" target="_blank" class="tl-cal-btn">📅 В календарь</a>
             </div>
         </div>`;
     }).join('');
 }
 
 // INIT
-load();applyTheme();renderStatic();render();
+load();
+applyTheme();
+renderStatic();
+render();
 </script>
 </body>
 </html>
